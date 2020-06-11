@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <param key="window_caption" value="Game" />
+
+    <param key="window_width" value="768" />
+    <param key="window_height" value="576" />
+
+    <param key="fullscreen" value="false" />
+
+    <param key="canvas_width" value="256" />
+    <param key="canvas_height" value="192" />
+
+    <param key="asset_path" value="assets/assets.xml" />
+    <param key="keyconfig_path" value="keyconfig.xml" />
+
+</config>

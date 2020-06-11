@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assets bitmap_path="assets/bitmaps/">
+    <bitmap src="font.png" name="font" />
+</assets>
