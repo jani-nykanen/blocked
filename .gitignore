@@ -1,0 +1,8 @@
+
+*
+!*/
+!*.*
+./tools/png2bin
+./tools/obj2bin
+!.gitignore
+!makefile
