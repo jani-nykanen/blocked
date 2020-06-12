@@ -27,6 +27,15 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	var input *core.InputManager
+	input, err = core.ParseKeyConfiguration(conf.GetValue("keyconfig_path", "null"))
+	if err != nil {
+
+		// No need to crash here
+		fmt.Println(err)
+		err = nil
+		input = nil
+	}
 
 	// This, my friend, is true beauty!
 	win, err = core.NewWindowBuilder().
@@ -40,6 +49,7 @@ func main() {
 					uint32(conf.GetNumericValue("canvas_width", 256)),
 					uint32(conf.GetNumericValue("canvas_height", 192))).
 				Build()).
+		BindInputManager(input).
 		SetAssetFilePath(conf.GetValue("asset_path", "")).
 		Build()
 	if err != nil {

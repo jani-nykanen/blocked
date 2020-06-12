@@ -225,6 +225,7 @@ type WindowBuilder struct {
 	CanvasWidth  uint32
 	CanvasHeight uint32
 	baseCanvas   *Canvas
+	input *InputManager
 
 	assetPath string
 	caption   string
@@ -271,7 +272,13 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 		window.assets = newAssetPack(window.renderer)
 	}
 
-	window.input = newInputManager()
+	if builder.input == nil {
+
+		window.input = newInputManager()
+	} else {
+
+		window.input = builder.input
+	}
 	window.ev = newEvent(0, window.input, window.assets)
 
 	return window, err
@@ -299,6 +306,14 @@ func (builder *WindowBuilder) BindCanvas(c *Canvas) *WindowBuilder {
 
 	builder.baseCanvas = c
 
+	return builder
+}
+
+
+// BindInputManager : Bind an input manager to the window
+func (builder *WindowBuilder) BindInputManager(input *InputManager) *WindowBuilder {
+
+	builder.input = input
 	return builder
 }
 
