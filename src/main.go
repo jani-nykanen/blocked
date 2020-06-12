@@ -28,7 +28,9 @@ func main() {
 		os.Exit(1)
 	}
 	var input *core.InputManager
-	input, err = core.ParseKeyConfiguration(conf.GetValue("keyconfig_path", "null"))
+	input, err = core.ParseKeyConfiguration(
+		conf.GetValue("keyconfig_path", "null"))
+
 	if err != nil {
 
 		// No need to crash here
