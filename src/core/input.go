@@ -143,26 +143,36 @@ func (input *InputManager) handleJoyAction(a *action, oldState State) {
 
 	const eps = 0.25
 
-	if a.joyaxis >= int32(len(input.axes)) ||
-		oldState == StatePressed {
+	if a.joyaxis >= int32(len(input.axes)) {
+
+		return
+	}
+
+	if oldState == StatePressed {
 
 		a.state = StateDown
-		return
 
 	} else if oldState == StateReleased {
 
 		a.state = StateUp
-		return
 	}
 
 	dir := float32(a.joydirection)
-	if input.axes[a.joyaxis]*dir > 0 &&
-		input.oldAxes[a.joyaxis]*dir <= eps &&
-		input.deltaAxes[a.joyaxis]*dir > eps {
+	if input.axes[a.joyaxis]*dir > 0 {
 
-		a.state = StatePressed
+		// TODO: Might need to compare to old axis, to get
+		// smoother menu movement
+		if input.deltaAxes[a.joyaxis]*dir > eps &&
+			input.oldAxes[a.joyaxis]*dir <= eps {
 
-	} else {
+			a.state = StatePressed
+
+		} else {
+
+			a.state = StateDown
+		}
+
+	} else if oldState == StateDown {
 
 		a.state = StateReleased
 	}

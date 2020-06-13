@@ -28,7 +28,21 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	if ev.Input.GetActionState("left")&core.StateDownOrPressed == 1 {
 
 		game.testPos.X -= 1.0 * step
+
+	} else if ev.Input.GetActionState("right")&core.StateDownOrPressed == 1 {
+
+		game.testPos.X += 1.0 * step
 	}
+	/*
+		if ev.Input.GetActionState("up")&core.StateDownOrPressed == 1 {
+
+			game.testPos.Y -= 1.0 * step
+
+		} else if ev.Input.GetActionState("down")&core.StateDownOrPressed == 1 {
+
+			game.testPos.Y += 1.0 * step
+		}
+	*/
 }
 
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
