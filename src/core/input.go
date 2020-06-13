@@ -135,7 +135,6 @@ func (input *InputManager) joyAxisMovement(axis uint32, amount float32) {
 
 		return
 	}
-
 	input.axes[axis] = ClampFloat32(amount, -1.0, 1.0)
 }
 
@@ -148,22 +147,10 @@ func (input *InputManager) handleJoyAction(a *action, oldState State) {
 		return
 	}
 
-	if oldState == StatePressed {
-
-		a.state = StateDown
-
-	} else if oldState == StateReleased {
-
-		a.state = StateUp
-	}
-
 	dir := float32(a.joydirection)
-	if input.axes[a.joyaxis]*dir > 0 {
+	if input.axes[a.joyaxis]*dir >= eps {
 
-		// TODO: Might need to compare to old axis, to get
-		// smoother menu movement
-		if input.deltaAxes[a.joyaxis]*dir > eps &&
-			input.oldAxes[a.joyaxis]*dir <= eps {
+		if input.oldAxes[a.joyaxis]*dir < eps {
 
 			a.state = StatePressed
 
@@ -171,10 +158,16 @@ func (input *InputManager) handleJoyAction(a *action, oldState State) {
 
 			a.state = StateDown
 		}
+	} else {
 
-	} else if oldState == StateDown {
+		if oldState&StateDownOrPressed == 1 {
 
-		a.state = StateReleased
+			a.state = StateReleased
+
+		} else {
+
+			a.state = StateUp
+		}
 	}
 }
 
