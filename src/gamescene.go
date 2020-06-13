@@ -4,12 +4,6 @@ import (
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
-//
-// The main (application-specific) game logic happens here
-//
-// (c) 2020 Jani Nykänen
-//
-
 type gameScene struct {
 	testPos core.Vector2
 }
