@@ -76,34 +76,36 @@ func newStateContainer(size uint32) *stateContainer {
 	return container
 }
 
-
 type action struct {
-	
 	scancode uint32
-	state State
-	
-	joybutton int32
-	joyaxis int32
+	state    State
+
+	joybutton    int32
+	joyaxis      int32
 	joydirection int32
 
 	name string
 }
 
-
 func newAction(name string,
 	key uint32, joybutton int32, joyaxis int32, joydir int32) action {
-	
-	return action {name: name,
-		scancode: key, state: StateUp, 
-		joybutton: joybutton, 
-		joyaxis: joyaxis, 
-		joydirection: joydir }
-}
 
+	return action{name: name,
+		scancode: key, state: StateUp,
+		joybutton:    joybutton,
+		joyaxis:      joyaxis,
+		joydirection: joydir}
+}
 
 // InputManager : Handles all kind of input
 type InputManager struct {
-	keyStates *stateContainer
+	keyStates       *stateContainer
+	joybuttonStates *stateContainer
+
+	axes      []float32
+	oldAxes   []float32
+	deltaAxes []float32
+
 	actions []action
 }
 
@@ -117,43 +119,100 @@ func (input *InputManager) keyReleased(index uint32) {
 	input.keyStates.eventReleased(index)
 }
 
+func (input *InputManager) joyButtonPressed(index uint32) {
+
+	input.joybuttonStates.eventPressed(index)
+}
+
+func (input *InputManager) joyButtonReleased(index uint32) {
+
+	input.joybuttonStates.eventReleased(index)
+}
+
+func (input *InputManager) joyAxisMovement(index uint32, amount float32) {
+
+	if index >= uint32(len(input.axes)) {
+
+		return
+	}
+
+	input.axes[index] = ClampFloat32(amount, -1.0, 1.0)
+}
+
+func (input *InputManager) handleJoyAction(a *action) {
+
+}
+
 func (input *InputManager) refresh() {
 
-	for i, a := range(input.actions) {
-		
-		input.actions[i].state = input.GetKeyState(a.scancode)
+	for i, axis := range input.axes {
+
+		input.deltaAxes[i] = axis - input.oldAxes[i]
+	}
+
+	for i, a := range input.actions {
+
+		if a.joydirection == 0 {
+
+			input.actions[i].state = input.GetKeyState(a.scancode)
+			if input.actions[i].state == StateUp {
+
+				input.actions[i].state = input.
+					joybuttonStates.getState(uint32(a.joybutton))
+			}
+
+		} else {
+
+			input.handleJoyAction(&input.actions[i])
+		}
 	}
 
 	input.keyStates.refresh()
+	input.joybuttonStates.refresh()
+
+	// This update needs to be done afterwards to make
+	// sure the actions tied to joystick axes are handled
+	// properly
+	for i, axis := range input.axes {
+
+		input.oldAxes[i] = axis
+	}
+
 }
 
 func newInputManager() *InputManager {
 
+	const maxButtons = 16
+	const maxAxes = 8
+
 	input := new(InputManager)
 
 	input.keyStates = newStateContainer(KeyLast)
-	
+	input.joybuttonStates = newStateContainer(maxButtons)
+
+	input.axes = make([]float32, maxAxes)
+	input.oldAxes = make([]float32, maxAxes)
+	input.deltaAxes = make([]float32, maxAxes)
+
 	input.actions = make([]action, 0)
 
 	return input
 }
 
-
 // AddAction : Add an input action
-func (input *InputManager) AddAction(name string, 
-	key uint32, joybutton int32, 
+func (input *InputManager) AddAction(name string,
+	key uint32, joybutton int32,
 	joyaxis int32, joydir int32) {
-	
-	input.actions = append(input.actions, 
-		newAction(name, key, joybutton, joyaxis, joydir));
-}
 
+	input.actions = append(input.actions,
+		newAction(name, key, joybutton, joyaxis, joydir))
+}
 
 // GetActionState : Get state of the action with the given name,
 // if exists, otherwise return default state
 func (input *InputManager) GetActionState(name string) State {
 
-	for _, a := range(input.actions) {
+	for _, a := range input.actions {
 
 		if a.name == name {
 

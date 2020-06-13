@@ -56,3 +56,11 @@ func RoundFloat32(x float32) int32 {
 
 	return int32(math.Round(float64(x)))
 }
+
+// ClampFloat32 : "Clamps" the given number to the interval
+// [min, max]
+func ClampFloat32(x float32, min float32, max float32) float32 {
+
+	return float32(math.Min(float64(max),
+		math.Max(float64(x), float64(min))))
+}
