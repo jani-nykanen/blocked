@@ -141,6 +141,30 @@ func (input *InputManager) joyAxisMovement(index uint32, amount float32) {
 
 func (input *InputManager) handleJoyAction(a *action) {
 
+	const eps = 0.25
+
+	if a.joyaxis >= int32(len(input.axes)) ||
+		a.state == StatePressed {
+
+		a.state = StateDown
+		return
+
+	} else if a.state == StateReleased {
+
+		a.state = StateUp
+	}
+
+	dir := float32(a.joydirection)
+	if input.axes[a.joyaxis]*dir > 0 &&
+		input.oldAxes[a.joyaxis]*dir <= eps &&
+		input.deltaAxes[a.joyaxis]*dir > eps {
+
+		a.state = StatePressed
+
+	} else {
+
+		a.state = StateReleased
+	}
 }
 
 func (input *InputManager) refresh() {
