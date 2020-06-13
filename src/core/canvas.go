@@ -160,6 +160,34 @@ func (c *Canvas) DrawText(font *Bitmap, text string,
 	}
 }
 
+// FillRect : Fills an rectangle
+func (c *Canvas) FillRect(x, y, w, h int32, color Color) {
+
+	c.renderer.SetDrawColor(color.R, color.G, color.B, color.A)
+
+	x += c.translation.X
+	y += c.translation.Y
+	c.destRect = sdl.Rect{X: x, Y: y, W: w, H: h}
+
+	c.renderer.FillRect(&c.destRect)
+
+}
+
+// MoveTo : Move the top-left corner of rendering
+// to the given point
+func (c *Canvas) MoveTo(x, y int32) {
+
+	c.translation.X = x
+	c.translation.Y = y
+}
+
+// Move : Move the top-left corner by the given value
+func (c *Canvas) Move(dx, dy int32) {
+
+	c.translation.X += dx
+	c.translation.Y += dy
+}
+
 // Width : A getter for width (it feels silly to comment
 // these things, seriously)
 func (c *Canvas) Width() uint32 {

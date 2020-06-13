@@ -60,3 +60,20 @@ func NewRect(x, y, w, h int32) Rectangle {
 
 	return Rectangle{X: x, Y: y, W: w, H: h}
 }
+
+// Color : RGBA color
+type Color struct {
+	R, G, B, A uint8
+}
+
+// NewRGBA : Constructor for color, all components
+func NewRGBA(r, g, b, a uint8) Color {
+
+	return Color{R: r, G: g, B: b, A: a}
+}
+
+// NewRGB : Constructor for color, no alpha component
+func NewRGB(r, g, b uint8) Color {
+
+	return Color{R: r, G: g, B: b, A: 255}
+}

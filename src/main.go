@@ -20,6 +20,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize joystick
+	err = sdl.InitSubSystem(sdl.INIT_JOYSTICK)
+	if err != nil {
+
+		fmt.Printf("Error initializing joystick: %s\n", err)
+
+	} else {
+
+		if sdl.JoystickOpen(0) == nil {
+
+			fmt.Println("No joystick or gamepad found.")
+
+		} else {
+
+			fmt.Println("Joystick at index 0 activated.")
+		}
+	}
+
 	// Fetch configuration data from a file
 	conf, err := core.ParseConfigurationFile("config.xml")
 	if err != nil {

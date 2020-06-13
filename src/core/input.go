@@ -129,29 +129,30 @@ func (input *InputManager) joyButtonReleased(index uint32) {
 	input.joybuttonStates.eventReleased(index)
 }
 
-func (input *InputManager) joyAxisMovement(index uint32, amount float32) {
+func (input *InputManager) joyAxisMovement(axis uint32, amount float32) {
 
-	if index >= uint32(len(input.axes)) {
+	if axis >= uint32(len(input.axes)) {
 
 		return
 	}
 
-	input.axes[index] = ClampFloat32(amount, -1.0, 1.0)
+	input.axes[axis] = ClampFloat32(amount, -1.0, 1.0)
 }
 
-func (input *InputManager) handleJoyAction(a *action) {
+func (input *InputManager) handleJoyAction(a *action, oldState State) {
 
 	const eps = 0.25
 
 	if a.joyaxis >= int32(len(input.axes)) ||
-		a.state == StatePressed {
+		oldState == StatePressed {
 
 		a.state = StateDown
 		return
 
-	} else if a.state == StateReleased {
+	} else if oldState == StateReleased {
 
 		a.state = StateUp
+		return
 	}
 
 	dir := float32(a.joydirection)
@@ -174,20 +175,23 @@ func (input *InputManager) refresh() {
 		input.deltaAxes[i] = axis - input.oldAxes[i]
 	}
 
+	var oldState State
 	for i, a := range input.actions {
 
-		if a.joydirection == 0 {
+		oldState = a.state
+		input.actions[i].state = input.GetKeyState(a.scancode)
 
-			input.actions[i].state = input.GetKeyState(a.scancode)
-			if input.actions[i].state == StateUp {
+		if input.actions[i].state == StateUp {
+
+			if a.joydirection == 0 {
 
 				input.actions[i].state = input.
 					joybuttonStates.getState(uint32(a.joybutton))
+
+			} else {
+
+				input.handleJoyAction(&input.actions[i], oldState)
 			}
-
-		} else {
-
-			input.handleJoyAction(&input.actions[i])
 		}
 	}
 

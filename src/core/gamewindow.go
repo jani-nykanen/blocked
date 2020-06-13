@@ -64,18 +64,15 @@ func (win *GameWindow) createWindow(width, height uint32, caption string) error 
 
 func (win *GameWindow) pollEvents() {
 
-	// Go through the events
 	event := sdl.PollEvent()
 	for ; event != nil; event = sdl.PollEvent() {
 
 		switch t := event.(type) {
 
-		// Quit
 		case *sdl.QuitEvent:
 			win.running = false
 			break
 
-		// Keyboard event
 		case *sdl.KeyboardEvent:
 
 			if t.Type == sdl.KEYDOWN {
@@ -87,7 +84,6 @@ func (win *GameWindow) pollEvents() {
 			}
 			break
 
-		// Window event
 		case *sdl.WindowEvent:
 
 			if t.WindowID == win.winID &&
@@ -98,6 +94,27 @@ func (win *GameWindow) pollEvents() {
 
 			break
 
+		case *sdl.JoyButtonEvent:
+
+			if t.Type == sdl.JOYBUTTONDOWN {
+
+				win.input.joyButtonPressed(uint32(t.Button))
+
+			} else if t.Type == sdl.JOYBUTTONUP {
+
+				win.input.joyButtonReleased(uint32(t.Button))
+			}
+
+			break
+
+		case *sdl.JoyAxisEvent:
+
+			win.input.joyAxisMovement(uint32(t.Axis), float32(t.Value)/32767.0)
+
+			break
+
+		default:
+			break
 		}
 	}
 }
@@ -225,7 +242,7 @@ type WindowBuilder struct {
 	CanvasWidth  uint32
 	CanvasHeight uint32
 	baseCanvas   *Canvas
-	input *InputManager
+	input        *InputManager
 
 	assetPath string
 	caption   string
@@ -308,7 +325,6 @@ func (builder *WindowBuilder) BindCanvas(c *Canvas) *WindowBuilder {
 
 	return builder
 }
-
 
 // BindInputManager : Bind an input manager to the window
 func (builder *WindowBuilder) BindInputManager(input *InputManager) *WindowBuilder {
