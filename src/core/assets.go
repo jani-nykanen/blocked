@@ -69,7 +69,9 @@ func (ap *AssetPack) GetAsset(name string) interface{} {
 
 	for _, a := range ap.assets {
 
-		return a.data
+		if a.name == name {
+			return a.data
+		}
 	}
 
 	return nil
