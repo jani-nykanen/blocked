@@ -64,6 +64,11 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 
 	var sx, sy int32
 
+	/*
+	 * There should be a better way to do the following,
+	 * but since this one works...
+	 */
+
 	// Top-left corner
 	sx = 48
 	sy = 0
@@ -84,6 +89,8 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 			sx = 24
 		} else if neighbour[3] && !neighbour[1] {
 			sx = 16
+		} else if !neighbour[3] && !neighbour[1] {
+			sx = 0
 		}
 	}
 	c.DrawBitmapRegion(bmp, sx, row*16+sy,
@@ -111,6 +118,8 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 			sy = 8
 		} else if neighbour[5] && !neighbour[1] {
 			sx = 16
+		} else if !neighbour[5] && !neighbour[1] {
+			sx = 8
 		}
 	}
 	c.DrawBitmapRegion(bmp, sx, row*16+sy,
@@ -138,6 +147,8 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 			sy = 0
 		} else if neighbour[3] && !neighbour[7] {
 			sx = 16
+		} else if !neighbour[3] && !neighbour[7] {
+			sx = 0
 		}
 	}
 	c.DrawBitmapRegion(bmp, sx, row*16+sy,
@@ -163,6 +174,8 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 			sx = 24
 		} else if neighbour[5] && !neighbour[7] {
 			sx = 16
+		} else if !neighbour[5] && !neighbour[7] {
+			sx = 8
 		}
 	}
 	c.DrawBitmapRegion(bmp, sx, row*16+sy,
