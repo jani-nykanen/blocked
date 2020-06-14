@@ -173,6 +173,20 @@ func (c *Canvas) FillRect(x, y, w, h int32, color Color) {
 
 }
 
+// DrawSpriteFrame : Draw an animated sprite frame
+func (c *Canvas) DrawSpriteFrame(spr *Sprite,
+	bmp *Bitmap, x, y, frame, row int32,
+	flip Flip) {
+
+	spr.DrawFrame(c, bmp, x, y, frame, row, flip)
+}
+
+// DrawSprite : Draw an animated sprite
+func (c *Canvas) DrawSprite(spr *Sprite, bmp *Bitmap, x, y int32, flip Flip) {
+
+	spr.Draw(c, bmp, x, y, flip)
+}
+
 // MoveTo : Move the top-left corner of rendering
 // to the given point
 func (c *Canvas) MoveTo(x, y int32) {
