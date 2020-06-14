@@ -53,11 +53,7 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 
 		for x := int32(-1); x <= 1; x++ {
 
-			if x == 0 && x == y {
-
-				continue
-			}
-			neighbour[(y+1)*3+(x+1)] = s.getTile(dx-x, dy-y) == tid
+			neighbour[(y+1)*3+(x+1)] = s.getTile(dx+x, dy+y) == tid
 		}
 	}
 
@@ -71,14 +67,106 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 	// Top-left corner
 	sx = 48
 	sy = 0
-	if !neighbour[1] && !neighbour[3] {
+	if !neighbour[0] {
 
-		sx = 0
-		sy = 0
+		if !neighbour[1] && !neighbour[3] {
+			sx = 0
+		} else if neighbour[1] && neighbour[3] {
+			sx = 32
+		} else if neighbour[1] {
+			sx = 24
+		} else if neighbour[3] {
+			sx = 16
+		}
+	} else {
 
+		if !neighbour[3] && neighbour[1] {
+			sx = 24
+		} else if neighbour[3] && !neighbour[1] {
+			sx = 16
+		}
 	}
 	c.DrawBitmapRegion(bmp, sx, row*16+sy,
 		8, 8, dx, dy, core.FlipNone)
+
+	// Top-right corner
+	sx = 56
+	sy = 0
+	if !neighbour[2] {
+
+		if !neighbour[1] && !neighbour[5] {
+			sx = 8
+		} else if neighbour[1] && neighbour[5] {
+			sx = 40
+		} else if neighbour[1] {
+			sx = 24
+			sy = 8
+		} else if neighbour[5] {
+			sx = 16
+		}
+	} else {
+
+		if !neighbour[5] && neighbour[1] {
+			sx = 24
+			sy = 8
+		} else if neighbour[5] && !neighbour[1] {
+			sx = 16
+		}
+	}
+	c.DrawBitmapRegion(bmp, sx, row*16+sy,
+		8, 8, dx+8, dy, core.FlipNone)
+
+	// Bottom-left corner
+	sx = 48
+	sy = 8
+	if !neighbour[6] {
+
+		if !neighbour[7] && !neighbour[3] {
+			sx = 0
+		} else if neighbour[7] && neighbour[3] {
+			sx = 32
+		} else if neighbour[7] {
+			sx = 24
+			sy = 0
+		} else if neighbour[3] {
+			sx = 16
+		}
+	} else {
+
+		if !neighbour[3] && neighbour[7] {
+			sx = 24
+			sy = 0
+		} else if neighbour[3] && !neighbour[7] {
+			sx = 16
+		}
+	}
+	c.DrawBitmapRegion(bmp, sx, row*16+sy,
+		8, 8, dx, dy+8, core.FlipNone)
+
+	// Bottom-right corner
+	sx = 56
+	sy = 8
+	if !neighbour[8] {
+
+		if !neighbour[7] && !neighbour[5] {
+			sx = 8
+		} else if neighbour[7] && neighbour[5] {
+			sx = 40
+		} else if neighbour[7] {
+			sx = 24
+		} else if neighbour[5] {
+			sx = 16
+		}
+	} else {
+
+		if !neighbour[5] && neighbour[7] {
+			sx = 24
+		} else if neighbour[5] && !neighbour[7] {
+			sx = 16
+		}
+	}
+	c.DrawBitmapRegion(bmp, sx, row*16+sy,
+		8, 8, dx+8, dy+8, core.FlipNone)
 }
 
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
