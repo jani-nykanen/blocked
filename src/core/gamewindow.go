@@ -62,6 +62,47 @@ func (win *GameWindow) createWindow(width, height uint32, caption string) error 
 	return err
 }
 
+func (win *GameWindow) handleJoyHat(value uint8) {
+
+	any := false
+
+	if value == sdl.HAT_LEFTUP ||
+		value == sdl.HAT_LEFT ||
+		value == sdl.HAT_LEFTDOWN {
+
+		win.input.joyAxisMovement(0, -1.0)
+		any = true
+
+	} else if value == sdl.HAT_RIGHTUP ||
+		value == sdl.HAT_RIGHT ||
+		value == sdl.HAT_RIGHTDOWN {
+
+		win.input.joyAxisMovement(0, 1.0)
+		any = true
+	}
+
+	if value == sdl.HAT_LEFTUP ||
+		value == sdl.HAT_UP ||
+		value == sdl.HAT_RIGHTUP {
+
+		win.input.joyAxisMovement(1, -1.0)
+		any = true
+
+	} else if value == sdl.HAT_LEFTDOWN ||
+		value == sdl.HAT_DOWN ||
+		value == sdl.HAT_RIGHTDOWN {
+
+		win.input.joyAxisMovement(1, 1.0)
+		any = true
+	}
+
+	if !any {
+
+		win.input.joyAxisMovement(0, 0.0)
+		win.input.joyAxisMovement(1, 0.0)
+	}
+}
+
 func (win *GameWindow) pollEvents() {
 
 	event := sdl.PollEvent()
@@ -110,6 +151,12 @@ func (win *GameWindow) pollEvents() {
 		case *sdl.JoyAxisEvent:
 
 			win.input.joyAxisMovement(uint32(t.Axis), float32(t.Value)/32767.0)
+
+			break
+
+		case *sdl.JoyHatEvent:
+
+			win.handleJoyHat(t.Value)
 
 			break
 
