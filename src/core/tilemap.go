@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/csv"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -111,6 +112,20 @@ func parseCSV(data string) []int32 {
 	}
 
 	return out
+}
+
+// CloneLayer : Clones a layer and returns an array
+func (t *Tilemap) CloneLayer(layerID uint32) ([]int32, error) {
+
+	if layerID >= uint32(len(t.layers)) {
+
+		return nil, fmt.Errorf("the layer index is out of range")
+	}
+
+	ret := make([]int32, t.width*t.height)
+	copy(ret, t.layers[layerID])
+
+	return ret, nil
 }
 
 // ParseTMX : Parse a TMX file and construct a
