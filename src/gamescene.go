@@ -6,6 +6,7 @@ import (
 
 type gameScene struct {
 	gameStage *stage
+	cloudPos  int32
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -18,17 +19,47 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 		return err
 	}
 
+	game.cloudPos = 0
+
 	return err
+}
+
+func (game *gameScene) updateBackground(step int32) {
+
+	game.cloudPos = (game.cloudPos + step) % (512)
 }
 
 func (game *gameScene) Refresh(ev *core.Event) {
 
+	game.updateBackground(ev.Step())
+
 	game.gameStage.update(ev)
+}
+
+func (game *gameScene) drawBackground(c *core.Canvas, bmp *core.Bitmap) {
+
+	const cloudPosY = int32(96)
+	const sunOffX = 56
+	const sunPosY = 32
+
+	c.Clear(145, 218, 255)
+
+	// Draw sun
+	c.DrawBitmapRegion(bmp, 128, 0, 48, 48,
+		int32(c.Width())-sunOffX, sunPosY, core.FlipNone)
+
+	// Draw clouds
+	for i := int32(0); i < 3; i++ {
+
+		c.DrawBitmapRegion(bmp, 0, 0, 128, 96,
+			-(game.cloudPos/4)+128*i,
+			cloudPosY, core.FlipNone)
+	}
 }
 
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
-	c.Clear(170, 170, 170)
+	game.drawBackground(c, ap.GetAsset("background").(*core.Bitmap))
 
 	game.gameStage.setCamera(c)
 
