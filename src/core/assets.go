@@ -22,7 +22,7 @@ func (ap *AssetPack) dispose() {
 		switch a.data.(type) {
 
 		case *Bitmap:
-			a.data.(*Bitmap).dispose()
+			a.data.(*Bitmap).Dispose()
 			break
 
 		default:

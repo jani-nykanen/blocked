@@ -12,7 +12,8 @@ type stage struct {
 	solid       []int32
 	width       int32
 	height      int32
-	tileTexture *core.Bitmap
+	tileLayer   *core.Bitmap
+	shadowLayer *core.Bitmap
 	tilesDrawn  bool
 }
 
@@ -47,8 +48,7 @@ func (s *stage) update(ev *core.Event) {
 	// ...
 }
 
-func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
-	tid, row, dx, dy int32) {
+func (s *stage) computeNeighbourhood(tid, dx, dy int32) [9]bool {
 
 	var neighbour [9]bool
 
@@ -59,6 +59,13 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 			neighbour[(y+1)*3+(x+1)] = s.getTile(dx+x, dy+y, tid) == tid
 		}
 	}
+	return neighbour
+}
+
+func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
+	tid, row, dx, dy int32) {
+
+	neighbour := s.computeNeighbourhood(tid, dx, dy)
 
 	dx *= 16
 	dy *= 16
@@ -215,13 +222,62 @@ func (s *stage) drawTiles(c *core.Canvas, ap *core.AssetPack) {
 
 }
 
-func (s *stage) refreshTileTexture(c *core.Canvas, ap *core.AssetPack) {
+func (s *stage) drawSolidTileShadow(c *core.Canvas, bmp *core.Bitmap,
+	tid, dx, dy int32) {
 
-	cb := func(c *core.Canvas, ap *core.AssetPack) {
+	neighbour := s.computeNeighbourhood(tid, dx, dy)
+
+	dx *= 16
+	dy *= 16
+
+	sx := int32(0)
+
+	if !neighbour[7] {
+
+		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
+			dx+8, dy+16, core.FlipNone)
+
+		if neighbour[3] {
+			sx = 8
+		} else {
+			sx = 0
+		}
+
+		c.DrawBitmapRegion(bmp, sx, 0, 8, 8,
+			dx, dy+16, core.FlipNone)
+	}
+}
+
+func (s *stage) drawShadows(c *core.Canvas, ap *core.AssetPack) {
+
+	bmp := ap.GetAsset("shadow").(*core.Bitmap)
+
+	for y := int32(0); y < s.height; y++ {
+
+		for x := int32(0); x < s.width; x++ {
+
+			if s.getTile(x, y, 0) != 1 {
+
+				continue
+			}
+			s.drawSolidTileShadow(c, bmp, 1, x, y)
+		}
+	}
+}
+
+func (s *stage) refreshTileLayer(c *core.Canvas, ap *core.AssetPack) {
+
+	cb1 := func(c *core.Canvas, ap *core.AssetPack) {
 
 		s.drawTiles(c, ap)
 	}
-	c.DrawToBitmap(s.tileTexture, ap, cb)
+	cb2 := func(c *core.Canvas, ap *core.AssetPack) {
+
+		s.drawShadows(c, ap)
+	}
+
+	c.DrawToBitmap(s.tileLayer, ap, cb1)
+	c.DrawToBitmap(s.shadowLayer, ap, cb2)
 }
 
 func (s *stage) drawFrame(c *core.Canvas, ap *core.AssetPack) {
@@ -266,7 +322,7 @@ func (s *stage) drawOutlines(c *core.Canvas) {
 	c.FillRect(0, 0, s.width*16, s.height*16,
 		core.NewRGB(85, 170, 255))
 
-	c.SetBitmapColor(s.tileTexture, 0, 0, 0)
+	c.SetBitmapColor(s.tileLayer, 0, 0, 0)
 
 	for y := int32(-1); y <= 1; y++ {
 
@@ -277,12 +333,12 @@ func (s *stage) drawOutlines(c *core.Canvas) {
 				continue
 			}
 
-			c.DrawBitmap(s.tileTexture, x, y,
+			c.DrawBitmap(s.tileLayer, x, y,
 				core.FlipNone)
 		}
 	}
 
-	c.SetBitmapColor(s.tileTexture, 255, 255, 255)
+	c.SetBitmapColor(s.tileLayer, 255, 255, 255)
 }
 
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
@@ -291,13 +347,15 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 		c.MoveTo(0, 0)
 
-		s.refreshTileTexture(c, ap)
+		s.refreshTileLayer(c, ap)
 		s.tilesDrawn = true
 
 		s.setCamera(c)
 	}
 
-	c.DrawBitmap(s.tileTexture, 0, 0,
+	c.DrawBitmap(s.shadowLayer, 0, 0,
+		core.FlipNone)
+	c.DrawBitmap(s.tileLayer, 0, 0,
 		core.FlipNone)
 
 	s.drawFrame(c, ap)
@@ -309,6 +367,12 @@ func (s *stage) setCamera(c *core.Canvas) {
 	top := int32(c.Height())/2 - s.height*16/2
 
 	c.MoveTo(left, top)
+}
+
+func (s *stage) dispose() {
+
+	s.tileLayer.Dispose()
+	s.shadowLayer.Dispose()
 }
 
 func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
@@ -324,10 +388,18 @@ func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 		return nil, err
 	}
 
-	s.tileTexture, err = ev.BuildBitmap(
+	s.tileLayer, err = ev.BuildBitmap(
 		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)
 	if err != nil {
 
+		return nil, err
+	}
+
+	s.shadowLayer, err = ev.BuildBitmap(
+		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)
+	if err != nil {
+
+		s.tileLayer.Dispose()
 		return nil, err
 	}
 

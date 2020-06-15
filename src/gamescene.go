@@ -45,6 +45,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 func (game *gameScene) Dispose() {
 
+	game.gameStage.dispose()
 }
 
 func newGameScene() core.Scene {

@@ -16,11 +16,6 @@ type Bitmap struct {
 	height  uint32
 }
 
-func (bmp *Bitmap) dispose() {
-
-	_ = bmp.texture.Destroy()
-}
-
 func newBitmap(width, height uint32, isTarget bool, rend *sdl.Renderer) (*Bitmap, error) {
 
 	var err error
@@ -111,11 +106,17 @@ func loadBitmap(rend *sdl.Renderer, path string) (*Bitmap, error) {
 // Width : What do you think? A getter for width!
 func (bmp *Bitmap) Width() uint32 {
 
-	return bmp.width;
+	return bmp.width
 }
 
 // Height : A getter for height, yes
 func (bmp *Bitmap) Height() uint32 {
 
-	return bmp.height;
+	return bmp.height
+}
+
+// Dispose : Destroy the bitmap
+func (bmp *Bitmap) Dispose() {
+
+	bmp.texture.Destroy()
 }

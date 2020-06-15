@@ -3,4 +3,5 @@
     <bitmap src="font.png" name="font" />
     <bitmap src="tileset.png" name="tileset" />
     <bitmap src="frame.png" name="frame" />
+    <bitmap src="shadow.png" name="shadow" />
 </assets>

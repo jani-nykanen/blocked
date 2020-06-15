@@ -81,7 +81,7 @@ func (c *Canvas) resize(w, h int32) {
 
 func (c *Canvas) dispose() {
 
-	c.frame.dispose()
+	c.frame.Dispose()
 }
 
 // Clear : Clear the screen with a color
