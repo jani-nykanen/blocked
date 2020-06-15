@@ -22,18 +22,14 @@ const (
 // Canvas : A "buffer" where the drawn content
 // is stored. In this case, a texture
 type Canvas struct {
-	width  uint32
-	height uint32
-
+	width       uint32
+	height      uint32
 	translation Point
-
-	renderer *sdl.Renderer
-	frame    *Bitmap
-
+	renderer    *sdl.Renderer
+	frame       *Bitmap
 	frameTarget sdl.Rect
-
-	srcRect  sdl.Rect
-	destRect sdl.Rect
+	srcRect     sdl.Rect
+	destRect    sdl.Rect
 }
 
 func (c *Canvas) initialize(renderer *sdl.Renderer) error {
@@ -214,6 +210,13 @@ func (c *Canvas) DrawToBitmap(bmp *Bitmap, ap *AssetPack, cb RenderCallback) {
 	c.renderer.SetRenderTarget(bmp.texture)
 	cb(c, ap)
 	c.renderer.SetRenderTarget(oldTarget)
+}
+
+// SetBitmapColor : Set color to be used when drawing
+// a bitmap
+func (c *Canvas) SetBitmapColor(bmp *Bitmap, r, g, b uint8) {
+
+	bmp.texture.SetColorMod(r, g, b)
 }
 
 // Width : A getter for width (it feels silly to comment

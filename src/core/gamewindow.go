@@ -8,22 +8,19 @@ import "github.com/veandco/go-sdl2/sdl"
 // GameWindow : Contains a window and "everything
 // that happens inside it". Application logic happens here.
 type GameWindow struct {
-	running    bool
-	fullscreen bool
-
-	timeSum uint32
-	oldTime uint32
-
-	window     *sdl.Window
-	renderer   *sdl.Renderer
-	winID      uint32
-	input      *InputManager
-	baseCanvas *Canvas
-	assets     *AssetPack
-	assetPath  string
-	bbuilder   *BitmapBuilder
-	ev         *Event
-
+	running     bool
+	fullscreen  bool
+	timeSum     uint32
+	oldTime     uint32
+	window      *sdl.Window
+	renderer    *sdl.Renderer
+	winID       uint32
+	input       *InputManager
+	baseCanvas  *Canvas
+	assets      *AssetPack
+	assetPath   string
+	bbuilder    *BitmapBuilder
+	ev          *Event
 	activeScene Scene
 }
 

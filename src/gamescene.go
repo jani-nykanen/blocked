@@ -31,6 +31,11 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	c.Clear(170, 170, 170)
 
 	game.gameStage.setCamera(c)
+
+	// Outlines
+	game.gameStage.drawOutlines(c)
+
+	// Base drawing
 	game.gameStage.draw(c, ap)
 
 	c.MoveTo(0, 0)
