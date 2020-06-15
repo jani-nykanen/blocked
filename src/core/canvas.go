@@ -4,6 +4,10 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+// RenderCallback : Used when rendering to user-created
+// bitmaps
+type RenderCallback func(c *Canvas, ap *AssetPack)
+
 // Flip : A flag for flipping a bitmap
 type Flip int32
 
@@ -202,6 +206,16 @@ func (c *Canvas) Move(dx, dy int32) {
 	c.translation.Y += dy
 }
 
+// DrawToBitmap : Use a bitmap as a render target
+func (c *Canvas) DrawToBitmap(bmp *Bitmap, ap *AssetPack, cb RenderCallback) {
+
+	oldTarget := c.renderer.GetRenderTarget()
+
+	c.renderer.SetRenderTarget(bmp.texture)
+	cb(c, ap)
+	c.renderer.SetRenderTarget(oldTarget)
+}
+
 // Width : A getter for width (it feels silly to comment
 // these things, seriously)
 func (c *Canvas) Width() uint32 {
@@ -214,6 +228,10 @@ func (c *Canvas) Height() uint32 {
 
 	return c.height
 }
+
+//
+// Canvas builder
+//
 
 // CanvasBuilder : Used to build a canvas
 type CanvasBuilder struct {

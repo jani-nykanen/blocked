@@ -21,6 +21,7 @@ type GameWindow struct {
 	baseCanvas *Canvas
 	assets     *AssetPack
 	assetPath  string
+	bbuilder   *BitmapBuilder
 	ev         *Event
 
 	activeScene Scene
@@ -343,7 +344,9 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 
 		window.input = builder.input
 	}
-	window.ev = newEvent(0, window.input, window.assets)
+
+	window.bbuilder = newBitmapBuilder(window.renderer)
+	window.ev = newEvent(0, window.input, window.assets, window.bbuilder)
 
 	return window, err
 }

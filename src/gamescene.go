@@ -12,7 +12,7 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 	var err error
 
-	game.gameStage, err = newStage(1)
+	game.gameStage, err = newStage(1, ev)
 	if err != nil {
 
 		return err

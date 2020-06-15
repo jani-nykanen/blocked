@@ -7,11 +7,13 @@ import (
 )
 
 type stage struct {
-	tmap   *core.Tilemap
-	tiles  []int32
-	solid  []int32
-	width  int32
-	height int32
+	tmap        *core.Tilemap
+	tiles       []int32
+	solid       []int32
+	width       int32
+	height      int32
+	tileTexture *core.Bitmap
+	tilesDrawn  bool
 }
 
 func (s *stage) computeInitialSolid() {
@@ -182,7 +184,7 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 		8, 8, dx+8, dy+8, core.FlipNone)
 }
 
-func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
+func (s *stage) drawTiles(c *core.Canvas, ap *core.AssetPack) {
 
 	var tid int32
 	bmp := ap.GetAsset("tileset").(*core.Bitmap)
@@ -212,6 +214,32 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 }
 
+func (s *stage) refreshTileTexture(c *core.Canvas, ap *core.AssetPack) {
+
+	cb := func(c *core.Canvas, ap *core.AssetPack) {
+
+		s.drawTiles(c, ap)
+	}
+	c.DrawToBitmap(s.tileTexture, ap, cb)
+}
+
+func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
+
+	if !s.tilesDrawn {
+
+		c.MoveTo(0, 0)
+
+		s.refreshTileTexture(c, ap)
+		s.tilesDrawn = true
+
+		s.setCamera(c)
+	}
+
+	c.FillRect(0, 0, s.width*16, s.height*16, core.NewRGB(170, 170, 255))
+	c.DrawBitmap(s.tileTexture, 0, 0,
+		core.FlipNone)
+}
+
 func (s *stage) setCamera(c *core.Canvas) {
 
 	left := int32(c.Width())/2 - s.width*16/2
@@ -220,7 +248,7 @@ func (s *stage) setCamera(c *core.Canvas) {
 	c.MoveTo(left, top)
 }
 
-func newStage(mapIndex int32) (*stage, error) {
+func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 
 	const basePath = "assets/maps/"
 
@@ -228,6 +256,13 @@ func newStage(mapIndex int32) (*stage, error) {
 	var err error
 
 	s.tmap, err = core.ParseTMX(basePath + strconv.Itoa(int(mapIndex)) + ".tmx")
+	if err != nil {
+
+		return nil, err
+	}
+
+	s.tileTexture, err = ev.BuildBitmap(
+		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)
 	if err != nil {
 
 		return nil, err
@@ -241,6 +276,8 @@ func newStage(mapIndex int32) (*stage, error) {
 
 	s.width = s.tmap.Width()
 	s.height = s.tmap.Height()
+
+	s.tilesDrawn = false
 
 	s.solid = make([]int32, s.width*s.height)
 	s.computeInitialSolid()
