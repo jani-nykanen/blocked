@@ -70,8 +70,6 @@ func (s *stage) drawWallTile(c *core.Canvas, bmp *core.Bitmap,
 	dx *= 16
 	dy *= 16
 
-	c.FillRect(dx, dy, 16, 16, core.NewRGB(255, 0, 0))
-
 	var sx, sy int32
 
 	/*
@@ -358,9 +356,6 @@ func (s *stage) drawFrame(c *core.Canvas, ap *core.AssetPack) {
 
 func (s *stage) drawOutlines(c *core.Canvas) {
 
-	c.FillRect(0, 0, s.width*16, s.height*16,
-		core.NewRGB(85, 170, 255))
-
 	c.SetBitmapColor(s.tileLayer, 0, 0, 0)
 
 	for y := int32(-1); y <= 1; y++ {
@@ -378,6 +373,28 @@ func (s *stage) drawOutlines(c *core.Canvas) {
 	}
 
 	c.SetBitmapColor(s.tileLayer, 255, 255, 255)
+}
+
+func (s *stage) drawBackground(c *core.Canvas, ap *core.AssetPack) {
+
+	var sx int32
+	bmp := ap.GetAsset("tileset").(*core.Bitmap)
+	for y := int32(0); y < s.height; y++ {
+
+		for x := int32(0); x < s.width; x++ {
+
+			if s.getTile(x, y, 0) != 0 {
+
+				continue
+			}
+			sx = 0
+			if x%2 == y%2 {
+				sx = 16
+			}
+
+			c.DrawBitmapRegion(bmp, sx, 16, 16, 16, x*16, y*16, core.FlipNone)
+		}
+	}
 }
 
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {

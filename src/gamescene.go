@@ -32,6 +32,9 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	game.gameStage.setCamera(c)
 
+	// Background stuff, drawn before outlines
+	game.gameStage.drawBackground(c, ap)
+
 	// Outlines
 	game.gameStage.drawOutlines(c)
 
