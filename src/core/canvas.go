@@ -219,6 +219,13 @@ func (c *Canvas) SetBitmapColor(bmp *Bitmap, r, g, b uint8) {
 	bmp.texture.SetColorMod(r, g, b)
 }
 
+// SetBitmapAlpha : Set alpha value to be used when drawing
+// a bitmap
+func (c *Canvas) SetBitmapAlpha(bmp *Bitmap, a uint8) {
+
+	bmp.texture.SetAlphaMod(a)
+}
+
 // Width : A getter for width (it feels silly to comment
 // these things, seriously)
 func (c *Canvas) Width() uint32 {

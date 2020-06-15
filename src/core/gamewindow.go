@@ -54,6 +54,7 @@ func (win *GameWindow) createWindow(width, height uint32, caption string) error 
 		_ = win.window.Destroy()
 		return err
 	}
+	win.renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 
 	sdl.ShowCursor(sdl.DISABLE)
 

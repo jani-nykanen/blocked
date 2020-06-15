@@ -231,7 +231,9 @@ func (s *stage) drawSolidTileShadow(c *core.Canvas, bmp *core.Bitmap,
 	dy *= 16
 
 	sx := int32(0)
+	sy := int32(0)
 
+	// Bottom
 	if !neighbour[7] {
 
 		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
@@ -245,6 +247,32 @@ func (s *stage) drawSolidTileShadow(c *core.Canvas, bmp *core.Bitmap,
 
 		c.DrawBitmapRegion(bmp, sx, 0, 8, 8,
 			dx, dy+16, core.FlipNone)
+	}
+
+	// Right
+	if !neighbour[5] {
+
+		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
+			dx+16, dy+8, core.FlipNone)
+
+		if neighbour[1] {
+			sx = 8
+			sy = 0
+		} else {
+			sx = 0
+			sy = 8
+		}
+
+		c.DrawBitmapRegion(bmp, sx, sy, 8, 8,
+			dx+16, dy, core.FlipNone)
+
+	}
+
+	// Bottom-right
+	if !neighbour[8] && !neighbour[7] && !neighbour[5] {
+
+		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
+			dx+16, dy+16, core.FlipNone)
 	}
 }
 
@@ -282,6 +310,9 @@ func (s *stage) refreshTileLayer(c *core.Canvas, ap *core.AssetPack) {
 
 func (s *stage) drawFrame(c *core.Canvas, ap *core.AssetPack) {
 
+	const shadowAlpha = 85
+	const shadowWidth = 6
+
 	var sx int32
 	var end int32
 
@@ -315,6 +346,14 @@ func (s *stage) drawFrame(c *core.Canvas, ap *core.AssetPack) {
 		c.DrawBitmapRegion(bmp, 16, 8, 8, 8,
 			s.width*16, y*8, core.FlipNone)
 	}
+
+	// Shadows
+	c.FillRect(s.width*16+shadowWidth, 0,
+		shadowWidth, s.height*16+shadowWidth*2,
+		core.NewRGBA(0, 0, 0, shadowAlpha))
+	c.FillRect(0, s.height*16+shadowWidth,
+		s.width*16+shadowWidth, shadowWidth,
+		core.NewRGBA(0, 0, 0, shadowAlpha))
 }
 
 func (s *stage) drawOutlines(c *core.Canvas) {
@@ -343,6 +382,8 @@ func (s *stage) drawOutlines(c *core.Canvas) {
 
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
+	const shadowAlpha = 85
+
 	if !s.tilesDrawn {
 
 		c.MoveTo(0, 0)
@@ -353,8 +394,11 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 		s.setCamera(c)
 	}
 
+	c.SetBitmapAlpha(s.shadowLayer, shadowAlpha)
 	c.DrawBitmap(s.shadowLayer, 0, 0,
 		core.FlipNone)
+	c.SetBitmapAlpha(s.shadowLayer, 255)
+
 	c.DrawBitmap(s.tileLayer, 0, 0,
 		core.FlipNone)
 
