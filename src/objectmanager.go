@@ -73,6 +73,14 @@ func (objm *objectManager) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
 	}
 }
 
+func (objm *objectManager) drawShadows(c *core.Canvas, ap *core.AssetPack) {
+
+	for _, b := range objm.blocks {
+
+		b.drawShadow(c, ap)
+	}
+}
+
 func (objm *objectManager) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	for _, b := range objm.blocks {

@@ -62,8 +62,8 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 
 	b.moveTimer += blockMoveTime
 	b.moving = true
-	b.target.X = b.pos.X + dx
-	b.target.Y = b.pos.Y + dy
+	b.target.X = core.NegMod(b.pos.X+dx, s.width)
+	b.target.Y = core.NegMod(b.pos.Y+dy, s.height)
 
 	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 }
@@ -149,6 +149,12 @@ func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
 
 	c.FillRect(b.renderPos.X-1, b.renderPos.Y-1, 18, 18,
 		core.NewRGB(0, 0, 0))
+}
+
+func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack) {
+
+	c.DrawBitmap(ap.GetAsset("shadow").(*core.Bitmap),
+		b.renderPos.X-1, b.renderPos.Y-1, core.FlipNone)
 }
 
 func (b *block) draw(c *core.Canvas, ap *core.AssetPack) {

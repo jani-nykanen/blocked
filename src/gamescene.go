@@ -75,6 +75,9 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.gameStage.drawOutlines(c)
 	game.objects.drawOutlines(c, ap)
 
+	// Shadows
+	game.gameStage.refreshShadowLayer(c, ap, game.objects)
+
 	// Base drawing
 	game.gameStage.draw(c, ap)
 	game.objects.draw(c, ap)

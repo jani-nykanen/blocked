@@ -45,19 +45,17 @@ func (s *stage) getTile(x, y, def int32) int32 {
 
 func (s *stage) getSolid(x, y int32) int32 {
 
-	if x < 0 || y < 0 || x >= s.width || y >= s.height {
+	x = core.NegMod(x, s.width)
+	y = core.NegMod(y, s.height)
 
-		return 1
-	}
 	return s.solid[y*s.width+x]
 }
 
 func (s *stage) updateSolidTile(x, y, newValue int32) {
 
-	if x < 0 || y < 0 || x >= s.width || y >= s.height {
+	x = core.NegMod(x, s.width)
+	y = core.NegMod(y, s.height)
 
-		return
-	}
 	s.solid[y*s.width+x] = newValue
 }
 
@@ -259,7 +257,7 @@ func (s *stage) drawSolidTileShadow(c *core.Canvas, bmp *core.Bitmap,
 	dy *= 16
 
 	c.DrawBitmapRegion(bmp, 0, 0, 32, 32,
-		dx, dy, core.FlipNone)
+		dx-1, dy-1, core.FlipNone)
 }
 
 func (s *stage) drawShadows(c *core.Canvas, ap *core.AssetPack) {
@@ -281,17 +279,27 @@ func (s *stage) drawShadows(c *core.Canvas, ap *core.AssetPack) {
 
 func (s *stage) refreshTileLayer(c *core.Canvas, ap *core.AssetPack) {
 
-	cb1 := func(c *core.Canvas, ap *core.AssetPack) {
+	cb := func(c *core.Canvas, ap *core.AssetPack) {
 
 		s.drawTiles(c, ap)
 	}
-	cb2 := func(c *core.Canvas, ap *core.AssetPack) {
+	c.DrawToBitmap(s.tileLayer, ap, cb)
+}
 
+func (s *stage) refreshShadowLayer(c *core.Canvas, ap *core.AssetPack,
+	objm *objectManager) {
+
+	cb := func(c *core.Canvas, ap *core.AssetPack) {
+
+		c.MoveTo(0, 0)
+
+		c.ClearToAlpha()
 		s.drawShadows(c, ap)
-	}
+		objm.drawShadows(c, ap)
 
-	c.DrawToBitmap(s.tileLayer, ap, cb1)
-	c.DrawToBitmap(s.shadowLayer, ap, cb2)
+		s.setCamera(c)
+	}
+	c.DrawToBitmap(s.shadowLayer, ap, cb)
 }
 
 func (s *stage) drawFrame(c *core.Canvas, ap *core.AssetPack) {

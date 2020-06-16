@@ -98,6 +98,18 @@ func (c *Canvas) Clear(r, g, b uint8) {
 	c.renderer.Clear()
 }
 
+// ClearToAlpha : Make the current render target
+// transparent
+func (c *Canvas) ClearToAlpha() {
+
+	c.renderer.SetDrawBlendMode(sdl.BLENDMODE_NONE)
+
+	c.renderer.SetDrawColor(0, 0, 0, 0)
+	c.renderer.Clear()
+
+	c.renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+}
+
 // DrawBitmap : Draw a full bitmap
 func (c *Canvas) DrawBitmap(bmp *Bitmap, dx, dy int32, flip Flip) {
 
