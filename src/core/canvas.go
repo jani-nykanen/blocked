@@ -19,6 +19,13 @@ const (
 	FlipBoth       = 3
 )
 
+// Blend modes
+const (
+	BlendDefault = sdl.BLENDMODE_BLEND
+	BlendMod     = sdl.BLENDMODE_MOD
+	BlendNone    = sdl.BLENDMODE_NONE
+)
+
 // Canvas : A "buffer" where the drawn content
 // is stored. In this case, a texture
 type Canvas struct {

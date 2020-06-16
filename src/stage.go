@@ -241,55 +241,25 @@ func (s *stage) drawTiles(c *core.Canvas, ap *core.AssetPack) {
 func (s *stage) drawSolidTileShadow(c *core.Canvas, bmp *core.Bitmap,
 	tid, dx, dy int32) {
 
-	neighbour := s.computeNeighbourhood(tid, dx, dy)
+	/*
+	 * This used to be more "smart",
+	 * but in the case we need to
+	 * redraw shadows each frame,
+	 * this requires less checks
+	 */
+
+	if s.getTile(dx+1, dy, 0) == 1 &&
+		s.getTile(dx+1, dy+1, 0) == 1 &&
+		s.getTile(dx, dy+1, 0) == 1 {
+
+		return
+	}
 
 	dx *= 16
 	dy *= 16
 
-	sx := int32(0)
-	sy := int32(0)
-
-	// Bottom
-	if !neighbour[7] {
-
-		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
-			dx+8, dy+16, core.FlipNone)
-
-		if neighbour[3] {
-			sx = 8
-		} else {
-			sx = 0
-		}
-
-		c.DrawBitmapRegion(bmp, sx, 0, 8, 8,
-			dx, dy+16, core.FlipNone)
-	}
-
-	// Right
-	if !neighbour[5] {
-
-		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
-			dx+16, dy+8, core.FlipNone)
-
-		if neighbour[1] {
-			sx = 8
-			sy = 0
-		} else {
-			sx = 0
-			sy = 8
-		}
-
-		c.DrawBitmapRegion(bmp, sx, sy, 8, 8,
-			dx+16, dy, core.FlipNone)
-
-	}
-
-	// Bottom-right
-	if !neighbour[8] && !neighbour[7] && !neighbour[5] {
-
-		c.DrawBitmapRegion(bmp, 8, 0, 8, 8,
-			dx+16, dy+16, core.FlipNone)
-	}
+	c.DrawBitmapRegion(bmp, 0, 0, 32, 32,
+		dx, dy, core.FlipNone)
 }
 
 func (s *stage) drawShadows(c *core.Canvas, ap *core.AssetPack) {

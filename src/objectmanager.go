@@ -29,6 +29,9 @@ func (objm *objectManager) isAnyMoving() bool {
 func (objm *objectManager) update(s *stage, ev *core.Event) {
 
 	loop := true
+	// All these loops are required to make it
+	// possible to move several blocks at the
+	// same time "consistently"
 	if !objm.isAnyMoving() {
 
 		for {
