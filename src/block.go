@@ -19,7 +19,12 @@ type block struct {
 	moveTimer int32
 }
 
-func (b *block) handleControls(s *stage, ev *core.Event) {
+func (b *block) handleControls(s *stage, ev *core.Event) bool {
+
+	if b.moving {
+
+		return false
+	}
 
 	dx := int32(0)
 	dy := int32(0)
@@ -43,7 +48,10 @@ func (b *block) handleControls(s *stage, ev *core.Event) {
 	if dx != 0 || dy != 0 {
 
 		b.moveTo(dx, dy, s)
+		return b.moving
 	}
+
+	return false
 }
 
 func (b *block) moveTo(dx, dy int32, s *stage) {
@@ -52,12 +60,12 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 		return
 	}
 
-	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
-
 	b.moveTimer += blockMoveTime
 	b.moving = true
 	b.target.X = b.pos.X + dx
 	b.target.Y = b.pos.Y + dy
+
+	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 }
 
 func (b *block) handleMovement(s *stage, ev *core.Event) {
@@ -74,8 +82,6 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 		dirx = b.target.X - b.pos.X
 		diry = b.target.Y - b.pos.Y
 
-		s.updateSolidTile(b.target.X, b.target.Y, 2)
-
 		b.pos = b.target
 
 		// Keep moving to the same direction, if possible
@@ -85,7 +91,22 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 		if !b.moving {
 
 			b.moveTimer = 0
+			s.updateSolidTile(b.pos.X, b.pos.Y, 2)
 		}
+	}
+}
+
+func (b *block) safeCheck(s *stage) {
+
+	// Sometimes this ugly thing happen
+	if s.getSolid(b.target.X, b.target.Y) != 0 {
+
+		b.moveTimer = 0
+		b.moving = false
+		b.target = b.pos
+
+		s.updateSolidTile(b.pos.X, b.pos.Y, 2)
+		b.computeRenderingPosition()
 	}
 }
 
@@ -110,16 +131,12 @@ func (b *block) computeRenderingPosition() {
 	}
 }
 
-func (b *block) update(anyMoving bool, s *stage, ev *core.Event) {
+func (b *block) update(s *stage, ev *core.Event) {
 
 	if !b.active {
 		return
 	}
 
-	if !anyMoving {
-
-		b.handleControls(s, ev)
-	}
 	b.handleMovement(s, ev)
 	b.computeRenderingPosition()
 }
