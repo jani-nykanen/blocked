@@ -5,4 +5,5 @@
     <bitmap src="frame.png" name="frame" />
     <bitmap src="shadow.png" name="shadow" />
     <bitmap src="background.png" name="background" />
+    <bitmap src="blocks.png" name="blocks" />
 </assets>

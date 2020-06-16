@@ -383,7 +383,7 @@ func (s *stage) drawBackground(c *core.Canvas, ap *core.AssetPack) {
 
 		for x := int32(0); x < s.width; x++ {
 
-			if s.getTile(x, y, 0) != 0 {
+			if s.getTile(x, y, 0) == 1 {
 
 				continue
 			}
@@ -434,6 +434,23 @@ func (s *stage) dispose() {
 
 	s.tileLayer.Dispose()
 	s.shadowLayer.Dispose()
+}
+
+func (s *stage) parseObjects(objm *objectManager) {
+
+	var tid int32
+
+	for y := int32(0); y < s.height; y++ {
+
+		for x := int32(0); x < s.width; x++ {
+
+			tid = s.getTile(x, y, 0)
+			if tid >= 9 && tid <= 17 {
+
+				objm.addBlock(x, y, tid-9)
+			}
+		}
+	}
 }
 
 func newStage(mapIndex int32, ev *core.Event) (*stage, error) {

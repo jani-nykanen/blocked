@@ -6,6 +6,7 @@ import (
 
 type gameScene struct {
 	gameStage *stage
+	objects   *objectManager
 	cloudPos  int32
 }
 
@@ -18,6 +19,9 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 		return err
 	}
+
+	game.objects = newObjectManager()
+	game.gameStage.parseObjects(game.objects)
 
 	game.cloudPos = 0
 
@@ -34,6 +38,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	game.updateBackground(ev.Step())
 
 	game.gameStage.update(ev)
+	game.objects.update(game.gameStage, ev)
 }
 
 func (game *gameScene) drawBackground(c *core.Canvas, bmp *core.Bitmap) {
@@ -68,9 +73,11 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	// Outlines
 	game.gameStage.drawOutlines(c)
+	game.objects.drawOutlines(c, ap)
 
 	// Base drawing
 	game.gameStage.draw(c, ap)
+	game.objects.draw(c, ap)
 
 	c.MoveTo(0, 0)
 	c.DrawText(ap.GetAsset("font").(*core.Bitmap),

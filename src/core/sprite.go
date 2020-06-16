@@ -81,7 +81,8 @@ func (spr *Sprite) Animate(row, start, end, speed, step int32) {
 // DrawFrame : Draw the given frame of the sprite
 func (spr *Sprite) DrawFrame(c *Canvas, bmp *Bitmap, x, y, frame, row int32, flip Flip) {
 
-	c.DrawBitmapRegion(bmp, frame*spr.width, row*spr.height,
+	c.DrawBitmapRegion(bmp,
+		frame*spr.width, row*spr.height,
 		spr.width, spr.height,
 		x, y, flip)
 }
