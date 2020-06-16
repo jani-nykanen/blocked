@@ -42,13 +42,13 @@ func (b *block) handleControls(s *stage, ev *core.Event) {
 
 	if dx != 0 || dy != 0 {
 
-		b.moveTo(b.pos.X+dx, b.pos.Y+dy, s)
+		b.moveTo(dx, dy, s)
 	}
 }
 
 func (b *block) moveTo(dx, dy int32, s *stage) {
 
-	if b.moving || s.getSolid(dx, dy) != 0 {
+	if b.moving || s.getSolid(b.pos.X+dx, b.pos.Y+dy) != 0 {
 		return
 	}
 
@@ -56,8 +56,8 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 
 	b.moveTimer += blockMoveTime
 	b.moving = true
-	b.target.X = dx
-	b.target.Y = dy
+	b.target.X = b.pos.X + dx
+	b.target.Y = b.pos.Y + dy
 }
 
 func (b *block) handleMovement(s *stage, ev *core.Event) {
@@ -74,12 +74,13 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 		dirx = b.target.X - b.pos.X
 		diry = b.target.Y - b.pos.Y
 
+		s.updateSolidTile(b.target.X, b.target.Y, 2)
+
 		b.pos = b.target
-		s.updateSolidTile(b.pos.X, b.pos.Y, 1)
 
 		// Keep moving to the same direction, if possible
 		b.moving = false
-		b.moveTo(b.pos.X+dirx, b.pos.Y+diry, s)
+		b.moveTo(dirx, diry, s)
 
 		if !b.moving {
 

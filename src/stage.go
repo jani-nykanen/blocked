@@ -52,7 +52,7 @@ func (s *stage) getSolid(x, y int32) int32 {
 	return s.solid[y*s.width+x]
 }
 
-func (s *stage) updateSolidTile(newValue, x, y int32) {
+func (s *stage) updateSolidTile(x, y, newValue int32) {
 
 	if x < 0 || y < 0 || x >= s.width || y >= s.height {
 
@@ -463,7 +463,7 @@ func (s *stage) parseObjects(objm *objectManager) {
 		for x := int32(0); x < s.width; x++ {
 
 			tid = s.getTile(x, y, 0)
-			if tid >= 9 && tid <= 17 {
+			if tid >= 9 {
 
 				objm.addBlock(x, y, tid-9)
 
