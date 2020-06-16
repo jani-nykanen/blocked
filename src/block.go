@@ -11,12 +11,14 @@ const (
 type block struct {
 	pos       core.Point
 	target    core.Point
+	dir       core.Point // Needed for "offscreen transition"
 	renderPos core.Point
 	id        int32
 	active    bool
 	spr       *core.Sprite
 	moving    bool
 	moveTimer int32
+	jumping   bool
 }
 
 func (b *block) handleControls(s *stage, ev *core.Event) bool {
@@ -60,10 +62,16 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 		return
 	}
 
+	b.dir.X = dx
+	b.dir.Y = dy
+
 	b.moveTimer += blockMoveTime
 	b.moving = true
+
 	b.target.X = core.NegMod(b.pos.X+dx, s.width)
 	b.target.Y = core.NegMod(b.pos.Y+dy, s.height)
+
+	b.jumping = b.target.X != b.pos.X+dx || b.target.Y != b.pos.Y+dy
 
 	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 }
@@ -167,6 +175,11 @@ func (b *block) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	c.DrawSprite(b.spr, bmp,
 		b.renderPos.X, b.renderPos.Y, core.FlipNone)
+
+	if b.jumping {
+
+		// ???
+	}
 }
 
 func newBlock(x, y, id int32) *block {
