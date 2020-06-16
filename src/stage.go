@@ -43,6 +43,24 @@ func (s *stage) getTile(x, y, def int32) int32 {
 	return s.tiles[y*s.width+x]
 }
 
+func (s *stage) getSolid(x, y int32) int32 {
+
+	if x < 0 || y < 0 || x >= s.width || y >= s.height {
+
+		return 1
+	}
+	return s.solid[y*s.width+x]
+}
+
+func (s *stage) updateSolidTile(newValue, x, y int32) {
+
+	if x < 0 || y < 0 || x >= s.width || y >= s.height {
+
+		return
+	}
+	s.solid[y*s.width+x] = newValue
+}
+
 func (s *stage) update(ev *core.Event) {
 
 	// ...
@@ -448,6 +466,8 @@ func (s *stage) parseObjects(objm *objectManager) {
 			if tid >= 9 && tid <= 17 {
 
 				objm.addBlock(x, y, tid-9)
+
+				s.updateSolidTile(x, y, 2)
 			}
 		}
 	}

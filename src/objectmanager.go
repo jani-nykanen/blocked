@@ -15,9 +15,19 @@ func (objm *objectManager) addBlock(x, y, id int32) {
 
 func (objm *objectManager) update(s *stage, ev *core.Event) {
 
+	anyMoving := false
 	for _, b := range objm.blocks {
 
-		b.update(s, ev)
+		if b.moving {
+
+			anyMoving = true
+			break
+		}
+	}
+
+	for _, b := range objm.blocks {
+
+		b.update(anyMoving, s, ev)
 	}
 }
 
