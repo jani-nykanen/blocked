@@ -66,21 +66,25 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	game.drawBackground(c, ap.GetAsset("background").(*core.Bitmap))
 
-	game.gameStage.setCamera(c)
+	// Shadows
+	game.gameStage.refreshShadowLayer(c, ap, game.objects)
+
+	game.gameStage.setViewport(c)
 
 	// Background stuff, drawn before outlines
 	game.gameStage.drawBackground(c, ap)
 
 	// Outlines
 	game.gameStage.drawOutlines(c)
-	game.objects.drawOutlines(c, ap)
-
-	// Shadows
-	game.gameStage.refreshShadowLayer(c, ap, game.objects)
+	game.objects.drawOutlines(c, ap, game.gameStage)
 
 	// Base drawing
 	game.gameStage.draw(c, ap)
-	game.objects.draw(c, ap)
+	game.objects.draw(c, ap, game.gameStage)
+
+	c.ResetViewport()
+
+	game.gameStage.drawDecorations(c, ap)
 
 	c.MoveTo(0, 0)
 	c.DrawText(ap.GetAsset("font").(*core.Bitmap),

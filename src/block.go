@@ -65,13 +65,14 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 	b.dir.X = dx
 	b.dir.Y = dy
 
+	b.jumping = b.pos.X+dx < 0 || b.pos.X+dx >= s.width ||
+		b.pos.Y+dy < 0 || b.pos.Y+dy >= s.height
+
 	b.moveTimer += blockMoveTime
 	b.moving = true
 
 	b.target.X = core.NegMod(b.pos.X+dx, s.width)
 	b.target.Y = core.NegMod(b.pos.Y+dy, s.height)
-
-	b.jumping = b.target.X != b.pos.X+dx || b.target.Y != b.pos.Y+dy
 
 	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 }
@@ -82,19 +83,14 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 		return
 	}
 
-	var dirx, diry int32
-
 	b.moveTimer -= ev.Step()
 	if b.moveTimer <= 0 {
-
-		dirx = b.target.X - b.pos.X
-		diry = b.target.Y - b.pos.Y
 
 		b.pos = b.target
 
 		// Keep moving to the same direction, if possible
 		b.moving = false
-		b.moveTo(dirx, diry, s)
+		b.moveTo(b.dir.X, b.dir.Y, s)
 
 		if !b.moving {
 
@@ -123,16 +119,25 @@ func (b *block) computeRenderingPosition() {
 	var t float32
 	var x, y float32
 
+	target := b.target
+
 	if !b.moving {
 
 		b.renderPos.X = b.pos.X * 16
 		b.renderPos.Y = b.pos.Y * 16
+
 	} else {
 
 		t = float32(b.moveTimer) / float32(blockMoveTime)
 
-		x = float32(b.pos.X*16)*t + (1.0-t)*float32(b.target.X*16)
-		y = float32(b.pos.Y*16)*t + (1.0-t)*float32(b.target.Y*16)
+		if b.jumping {
+
+			target.X = b.pos.X + b.dir.X
+			target.Y = b.pos.Y + b.dir.Y
+		}
+
+		x = float32(b.pos.X*16)*t + (1.0-t)*float32(target.X*16)
+		y = float32(b.pos.Y*16)*t + (1.0-t)*float32(target.Y*16)
 
 		b.renderPos.X = core.RoundFloat32(x)
 		b.renderPos.Y = core.RoundFloat32(y)
@@ -149,7 +154,7 @@ func (b *block) update(s *stage, ev *core.Event) {
 	b.computeRenderingPosition()
 }
 
-func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
+func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
 	if !b.active {
 		return
@@ -157,15 +162,50 @@ func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
 
 	c.FillRect(b.renderPos.X-1, b.renderPos.Y-1, 18, 18,
 		core.NewRGB(0, 0, 0))
+
+	if b.jumping {
+
+		if b.dir.X != 0 {
+
+			c.FillRect(b.renderPos.X-1-b.dir.X*s.width*16,
+				b.renderPos.Y-1, 18, 18,
+				core.NewRGB(0, 0, 0))
+
+		} else if b.dir.Y != 0 {
+
+			c.FillRect(b.renderPos.X-1,
+				b.renderPos.Y-1-b.dir.Y*s.height*16,
+				18, 18, core.NewRGB(0, 0, 0))
+		}
+	}
 }
 
-func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack) {
+func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
-	c.DrawBitmap(ap.GetAsset("shadow").(*core.Bitmap),
+	bmp := ap.GetAsset("shadow").(*core.Bitmap)
+
+	c.DrawBitmap(bmp,
 		b.renderPos.X-1, b.renderPos.Y-1, core.FlipNone)
+
+	if b.jumping {
+
+		if b.dir.X != 0 {
+
+			c.DrawSprite(b.spr, bmp,
+				b.renderPos.X-1-b.dir.X*s.width*16,
+				b.renderPos.Y-1, core.FlipNone)
+
+		} else if b.dir.Y != 0 {
+
+			c.DrawSprite(b.spr, bmp,
+				b.renderPos.X-1,
+				b.renderPos.Y-1-b.dir.Y*s.height*16,
+				core.FlipNone)
+		}
+	}
 }
 
-func (b *block) draw(c *core.Canvas, ap *core.AssetPack) {
+func (b *block) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
 	if !b.active {
 		return
@@ -178,7 +218,19 @@ func (b *block) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	if b.jumping {
 
-		// ???
+		if b.dir.X != 0 {
+
+			c.DrawSprite(b.spr, bmp,
+				b.renderPos.X-b.dir.X*s.width*16,
+				b.renderPos.Y, core.FlipNone)
+
+		} else if b.dir.Y != 0 {
+
+			c.DrawSprite(b.spr, bmp,
+				b.renderPos.X,
+				b.renderPos.Y-b.dir.Y*s.height*16,
+				core.FlipNone)
+		}
 	}
 }
 

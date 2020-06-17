@@ -291,13 +291,9 @@ func (s *stage) refreshShadowLayer(c *core.Canvas, ap *core.AssetPack,
 
 	cb := func(c *core.Canvas, ap *core.AssetPack) {
 
-		c.MoveTo(0, 0)
-
 		c.ClearToAlpha()
 		s.drawShadows(c, ap)
-		objm.drawShadows(c, ap)
-
-		s.setCamera(c)
+		objm.drawShadows(c, ap, s)
 	}
 	c.DrawToBitmap(s.shadowLayer, ap, cb)
 }
@@ -403,8 +399,6 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 		s.refreshTileLayer(c, ap)
 		s.tilesDrawn = true
-
-		s.setCamera(c)
 	}
 
 	c.SetBitmapAlpha(s.shadowLayer, shadowAlpha)
@@ -414,16 +408,24 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	c.DrawBitmap(s.tileLayer, 0, 0,
 		core.FlipNone)
-
-	s.drawFrame(c, ap)
 }
 
-func (s *stage) setCamera(c *core.Canvas) {
+func (s *stage) drawDecorations(c *core.Canvas, ap *core.AssetPack) {
 
 	left := int32(c.Width())/2 - s.width*16/2
 	top := int32(c.Height())/2 - s.height*16/2
 
 	c.MoveTo(left, top)
+
+	s.drawFrame(c, ap)
+}
+
+func (s *stage) setViewport(c *core.Canvas) {
+
+	left := int32(c.Width())/2 - s.width*16/2
+	top := int32(c.Height())/2 - s.height*16/2
+
+	c.SetViewport(left, top, s.width*16, s.height*16)
 }
 
 func (s *stage) dispose() {

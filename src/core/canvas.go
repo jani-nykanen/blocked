@@ -245,6 +245,21 @@ func (c *Canvas) SetBitmapAlpha(bmp *Bitmap, a uint8) {
 	bmp.texture.SetAlphaMod(a)
 }
 
+// SetViewport : Set the current view area
+func (c *Canvas) SetViewport(x, y, w, h int32) {
+
+	c.destRect = sdl.Rect{X: x, Y: y, W: w, H: h}
+
+	c.renderer.SetViewport(&c.destRect)
+}
+
+// ResetViewport : Reset the viewport to the whole
+// target area
+func (c *Canvas) ResetViewport() {
+
+	c.renderer.SetViewport(nil)
+}
+
 // Width : A getter for width (it feels silly to comment
 // these things, seriously)
 func (c *Canvas) Width() uint32 {
