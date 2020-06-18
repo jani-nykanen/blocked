@@ -5,7 +5,10 @@ import (
 )
 
 const (
-	blockMoveTime = 8
+	blockMoveTime  = 8
+	blockWrongHole = -1 // ehehehhehehe
+	blockNoHole    = 0
+	blockRightHole = 1
 )
 
 type block struct {
@@ -77,10 +80,10 @@ func (b *block) moveTo(dx, dy int32, s *stage) {
 	s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 }
 
-func (b *block) handleMovement(s *stage, ev *core.Event) {
+func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 
 	if !b.moving {
-		return
+		return blockNoHole
 	}
 
 	var hitHole, correctHole bool
@@ -100,7 +103,11 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 			b.moving = false
 			b.moveTimer = 0
 
-			return
+			if correctHole {
+
+				return blockRightHole
+			}
+			return blockWrongHole
 		}
 
 		// Keep moving to the same direction, if possible
@@ -113,6 +120,8 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 			s.updateSolidTile(b.pos.X, b.pos.Y, 2)
 		}
 	}
+
+	return blockNoHole
 }
 
 func (b *block) safeCheck(s *stage) {
@@ -159,14 +168,16 @@ func (b *block) computeRenderingPosition() {
 	}
 }
 
-func (b *block) update(s *stage, ev *core.Event) {
+func (b *block) update(s *stage, ev *core.Event) int32 {
 
 	if !b.active {
-		return
+		return blockNoHole
 	}
 
-	b.handleMovement(s, ev)
+	ret := b.handleMovement(s, ev)
 	b.computeRenderingPosition()
+
+	return ret
 }
 
 func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
