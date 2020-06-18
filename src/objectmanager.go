@@ -5,12 +5,28 @@ import (
 )
 
 type objectManager struct {
-	blocks [](*block)
+	blocks    [](*block)
+	fragments [](*fragment)
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
 
 	objm.blocks = append(objm.blocks, newBlock(x, y, id))
+}
+
+func (objm *objectManager) nextFragment() *fragment {
+
+	for _, f := range objm.fragments {
+
+		if !f.exist {
+
+			return f
+		}
+	}
+
+	objm.fragments = append(objm.fragments, newFragment())
+
+	return objm.fragments[len(objm.fragments)-1]
 }
 
 func (objm *objectManager) isAnyMoving() bool {
@@ -94,6 +110,7 @@ func newObjectManager() *objectManager {
 	objm := new(objectManager)
 
 	objm.blocks = make([](*block), 0)
+	objm.fragments = make([](*fragment), 0)
 
 	return objm
 }
