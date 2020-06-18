@@ -7,14 +7,16 @@ import (
 )
 
 type stage struct {
-	tmap        *core.Tilemap
-	tiles       []int32
-	solid       []int32
-	width       int32
-	height      int32
-	tileLayer   *core.Bitmap
-	shadowLayer *core.Bitmap
-	tilesDrawn  bool
+	tmap         *core.Tilemap
+	tiles        []int32
+	solid        []int32
+	width        int32
+	height       int32
+	tileLayer    *core.Bitmap
+	shadowLayer  *core.Bitmap
+	tilesDrawn   bool
+	holeSprite   *core.Sprite
+	markerSprite *core.Sprite
 }
 
 func (s *stage) computeInitialSolid() {
@@ -59,9 +61,11 @@ func (s *stage) updateSolidTile(x, y, newValue int32) {
 	s.solid[y*s.width+x] = newValue
 }
 
-func (s *stage) update(ev *core.Event) {
+func (s *stage) checkHoleTile(x, y, id int32) (bool, bool) {
 
-	// ...
+	t := s.getTile(x, y, 0) - 2
+
+	return t >= 0 && t <= 3, t == id
 }
 
 func (s *stage) computeNeighbourhood(tid, dx, dy int32) [9]bool {
@@ -389,6 +393,57 @@ func (s *stage) drawBackground(c *core.Canvas, ap *core.AssetPack) {
 	}
 }
 
+func (s *stage) drawHoles(c *core.Canvas, ap *core.AssetPack) {
+
+	bmp := ap.GetAsset("holes").(*core.Bitmap)
+
+	var tid int32
+
+	for y := int32(0); y < s.height; y++ {
+
+		for x := int32(0); x < s.width; x++ {
+
+			tid = s.getTile(x, y, 0)
+			if tid < 2 || tid > 5 {
+				continue
+			}
+			tid -= 2
+
+			c.DrawSpriteFrame(s.holeSprite, bmp,
+				x*16, y*16, s.holeSprite.Frame(),
+				tid, core.FlipNone)
+		}
+	}
+}
+
+// That is, draw after objects
+func (s *stage) postDraw(c *core.Canvas, ap *core.AssetPack) {
+
+	/*
+	 * TODO: Repeating code, make a "super-method" for this
+	 * and the method above
+	 */
+	bmp := ap.GetAsset("marker").(*core.Bitmap)
+
+	var tid int32
+
+	for y := int32(0); y < s.height; y++ {
+
+		for x := int32(0); x < s.width; x++ {
+
+			tid = s.getTile(x, y, 0)
+			if tid < 2 || tid > 5 {
+				continue
+			}
+			tid -= 2
+
+			c.DrawSpriteFrame(s.markerSprite, bmp,
+				x*16-4, y*16-4, s.markerSprite.Frame(),
+				tid, core.FlipNone)
+		}
+	}
+}
+
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	const shadowAlpha = 85
@@ -401,13 +456,19 @@ func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 		s.tilesDrawn = true
 	}
 
+	// Shadows
 	c.SetBitmapAlpha(s.shadowLayer, shadowAlpha)
 	c.DrawBitmap(s.shadowLayer, 0, 0,
 		core.FlipNone)
 	c.SetBitmapAlpha(s.shadowLayer, 255)
 
+	// Walls
 	c.DrawBitmap(s.tileLayer, 0, 0,
 		core.FlipNone)
+
+	// Holes
+	s.drawHoles(c, ap)
+
 }
 
 func (s *stage) drawDecorations(c *core.Canvas, ap *core.AssetPack) {
@@ -418,6 +479,15 @@ func (s *stage) drawDecorations(c *core.Canvas, ap *core.AssetPack) {
 	c.MoveTo(left, top)
 
 	s.drawFrame(c, ap)
+}
+
+func (s *stage) update(ev *core.Event) {
+
+	const holeAnimSpeed = 6
+	const markerAnimSpeed = 15
+
+	s.holeSprite.Animate(0, 0, 3, holeAnimSpeed, ev.Step())
+	s.markerSprite.Animate(0, 0, 3, markerAnimSpeed, ev.Step())
 }
 
 func (s *stage) setViewport(c *core.Canvas) {
@@ -494,6 +564,9 @@ func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 
 	s.solid = make([]int32, s.width*s.height)
 	s.computeInitialSolid()
+
+	s.holeSprite = core.NewSprite(16, 16)
+	s.markerSprite = core.NewSprite(24, 24)
 
 	return s, err
 }

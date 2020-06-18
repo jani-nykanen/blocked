@@ -17,7 +17,7 @@ func (objm *objectManager) isAnyMoving() bool {
 
 	for _, b := range objm.blocks {
 
-		if b.moving {
+		if b.moving && b.active {
 
 			return true
 		}

@@ -81,6 +81,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	// Base drawing
 	game.gameStage.draw(c, ap)
 	game.objects.draw(c, ap, game.gameStage)
+	game.gameStage.postDraw(c, ap)
 
 	c.ResetViewport()
 

@@ -6,4 +6,6 @@
     <bitmap src="shadow.png" name="shadow" />
     <bitmap src="background.png" name="background" />
     <bitmap src="blocks.png" name="blocks" />
+    <bitmap src="holes.png" name="holes" />
+    <bitmap src="marker.png" name="marker" />
 </assets>

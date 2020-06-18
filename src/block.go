@@ -83,10 +83,25 @@ func (b *block) handleMovement(s *stage, ev *core.Event) {
 		return
 	}
 
+	var hitHole, correctHole bool
+
 	b.moveTimer -= ev.Step()
 	if b.moveTimer <= 0 {
 
 		b.pos = b.target
+
+		// Check if hits a hole
+		hitHole, correctHole = s.checkHoleTile(b.pos.X, b.pos.Y, b.id-1)
+		if hitHole && correctHole {
+
+			s.updateSolidTile(b.pos.X, b.pos.Y, 0)
+
+			b.active = false
+			b.moving = false
+			b.moveTimer = 0
+
+			return
+		}
 
 		// Keep moving to the same direction, if possible
 		b.moving = false
