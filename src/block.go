@@ -99,14 +99,13 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 			hitHole, correctHole = s.checkHoleTile(b.pos.X, b.pos.Y, b.id-1)
 			if hitHole && correctHole {
 
-				s.updateSolidTile(b.pos.X, b.pos.Y, 0)
-
 				b.exist = false
 				b.moving = false
 				b.moveTimer = 0
 
 				if correctHole {
 
+					s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 					return blockRightHole
 				}
 				return blockWrongHole
