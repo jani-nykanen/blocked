@@ -5,9 +5,11 @@ import (
 )
 
 type gameScene struct {
-	gameStage *stage
-	objects   *objectManager
-	cloudPos  int32
+	gameStage    *stage
+	objects      *objectManager
+	cloudPos     int32
+	failureTimer int32
+	failed       bool
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -24,6 +26,8 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.gameStage.parseObjects(game.objects)
 
 	game.cloudPos = 0
+	game.failureTimer = 0
+	game.failed = false
 
 	return err
 }
@@ -33,6 +37,9 @@ func (game *gameScene) reset(ev *core.Event) {
 	game.gameStage.reset()
 	game.objects.clear()
 	game.gameStage.parseObjects(game.objects)
+
+	game.failed = false
+	game.failureTimer = 0
 }
 
 func (game *gameScene) updateBackground(step int32) {
@@ -42,12 +49,28 @@ func (game *gameScene) updateBackground(step int32) {
 
 func (game *gameScene) Refresh(ev *core.Event) {
 
+	const failTime int32 = 60
+
 	game.updateBackground(ev.Step())
 
-	game.gameStage.update(ev)
-	if game.objects.update(game.gameStage, ev) {
+	if !game.failed {
 
-		game.reset(ev)
+		game.gameStage.update(ev)
+		if game.objects.update(game.gameStage, ev) {
+
+			game.failed = true
+			game.failureTimer = failTime
+
+			game.gameStage.shake(failTime)
+		}
+
+	} else {
+
+		game.failureTimer -= ev.Step()
+		if game.failureTimer <= 0 {
+
+			game.reset(ev)
+		}
 	}
 }
 
@@ -74,20 +97,21 @@ func (game *gameScene) drawBackground(c *core.Canvas, bmp *core.Bitmap) {
 
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
+	// This needs to be called before anything else because when
+	// (re)starting the stage, calling this after background
+	// drawing will cause one frame of weirdness
+	game.gameStage.preDraw(c, ap)
+
 	game.drawBackground(c, ap.GetAsset("background").(*core.Bitmap))
 
-	// Shadows
 	game.gameStage.refreshShadowLayer(c, ap, game.objects)
 
 	game.gameStage.setViewport(c)
-
 	// Background stuff, drawn before outlines
 	game.gameStage.drawBackground(c, ap)
-
 	// Outlines
 	game.gameStage.drawOutlines(c)
 	game.objects.drawOutlines(c, ap, game.gameStage)
-
 	// Base drawing
 	game.gameStage.draw(c, ap)
 	game.objects.draw(c, ap, game.gameStage)

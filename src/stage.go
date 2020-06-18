@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"strconv"
 
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
@@ -17,12 +18,20 @@ type stage struct {
 	tilesDrawn   bool
 	holeSprite   *core.Sprite
 	markerSprite *core.Sprite
+	shakeTimer   int32
 }
 
 func (s *stage) reset() {
 
 	s.tilesDrawn = false
 	s.computeInitialSolid()
+
+	s.shakeTimer = 0
+}
+
+func (s *stage) shake(time int32) {
+
+	s.shakeTimer = time
 }
 
 func (s *stage) computeInitialSolid() {
@@ -426,6 +435,17 @@ func (s *stage) drawHoles(c *core.Canvas, ap *core.AssetPack) {
 	}
 }
 
+func (s *stage) preDraw(c *core.Canvas, ap *core.AssetPack) {
+
+	if !s.tilesDrawn {
+
+		c.MoveTo(0, 0)
+
+		s.refreshTileLayer(c, ap)
+		s.tilesDrawn = true
+	}
+}
+
 // That is, draw after objects
 func (s *stage) postDraw(c *core.Canvas, ap *core.AssetPack) {
 
@@ -457,14 +477,6 @@ func (s *stage) postDraw(c *core.Canvas, ap *core.AssetPack) {
 func (s *stage) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	const shadowAlpha = 85
-
-	if !s.tilesDrawn {
-
-		c.MoveTo(0, 0)
-
-		s.refreshTileLayer(c, ap)
-		s.tilesDrawn = true
-	}
 
 	// Shadows
 	c.SetBitmapAlpha(s.shadowLayer, shadowAlpha)
@@ -498,12 +510,25 @@ func (s *stage) update(ev *core.Event) {
 
 	s.holeSprite.Animate(0, 0, 3, holeAnimSpeed, ev.Step())
 	s.markerSprite.Animate(0, 0, 3, markerAnimSpeed, ev.Step())
+
+	if s.shakeTimer > 0 {
+
+		s.shakeTimer -= ev.Step()
+	}
 }
 
 func (s *stage) setViewport(c *core.Canvas) {
 
+	const shakeMax int32 = 3
+
 	left := int32(c.Width())/2 - s.width*16/2
 	top := int32(c.Height())/2 - s.height*16/2
+
+	if s.shakeTimer > 0 {
+
+		left += (rand.Int31() % (2 * shakeMax)) - shakeMax
+		top += (rand.Int31() % (2 * shakeMax)) - shakeMax
+	}
 
 	c.SetViewport(left, top, s.width*16, s.height*16)
 }
