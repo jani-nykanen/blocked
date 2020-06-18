@@ -35,7 +35,7 @@ func (objm *objectManager) nextFragment() *fragment {
 func (objm *objectManager) createFragments(b *block) {
 
 	const minSpeed = 2.0
-	const maxSpeed = 4.0
+	const maxSpeed = 3.0
 	const fragmentTime = 30
 
 	px := b.pos.X*16 + b.spr.Width()/2
@@ -49,18 +49,20 @@ func (objm *objectManager) createFragments(b *block) {
 
 	var angle float64
 	var speed float64
+	var dist float64
 
 	for y := int32(0); y < 4; y++ {
 
 		for x := int32(0); x < 4; x++ {
 
-			angle = math.Atan2(float64(y-2), float64(x-2))
+			angle = math.Atan2(float64(y)-1.5, float64(x)-1.5)
+			dist = math.Hypot(float64(x)-1.5, float64(y)-1.5) / math.Sqrt2
 
 			speed = rand.Float64()*(maxSpeed-minSpeed) + minSpeed
 			objm.nextFragment().spawn(px, py,
 				sx+x*sw, sy+y*sh, sw, sh,
-				float32(math.Cos(angle)*speed),
-				float32(math.Sin(angle)*speed),
+				float32(math.Cos(angle)*speed*dist),
+				float32(math.Sin(angle)*speed*dist),
 				fragmentTime)
 		}
 	}
@@ -70,7 +72,7 @@ func (objm *objectManager) isAnyMoving() bool {
 
 	for _, b := range objm.blocks {
 
-		if b.moving && b.active {
+		if b.moving && b.exist {
 
 			return true
 		}

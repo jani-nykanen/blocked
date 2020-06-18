@@ -17,7 +17,7 @@ type block struct {
 	dir       core.Point // Needed for "offscreen transition"
 	renderPos core.Point
 	id        int32
-	active    bool
+	exist     bool
 	spr       *core.Sprite
 	moving    bool
 	moveTimer int32
@@ -94,20 +94,23 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 		b.pos = b.target
 
 		// Check if hits a hole
-		hitHole, correctHole = s.checkHoleTile(b.pos.X, b.pos.Y, b.id-1)
-		if hitHole && correctHole {
+		if b.id != 0 {
 
-			s.updateSolidTile(b.pos.X, b.pos.Y, 0)
+			hitHole, correctHole = s.checkHoleTile(b.pos.X, b.pos.Y, b.id-1)
+			if hitHole && correctHole {
 
-			b.active = false
-			b.moving = false
-			b.moveTimer = 0
+				s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 
-			if correctHole {
+				b.exist = false
+				b.moving = false
+				b.moveTimer = 0
 
-				return blockRightHole
+				if correctHole {
+
+					return blockRightHole
+				}
+				return blockWrongHole
 			}
-			return blockWrongHole
 		}
 
 		// Keep moving to the same direction, if possible
@@ -170,7 +173,7 @@ func (b *block) computeRenderingPosition() {
 
 func (b *block) update(s *stage, ev *core.Event) int32 {
 
-	if !b.active {
+	if !b.exist {
 		return blockNoHole
 	}
 
@@ -182,7 +185,7 @@ func (b *block) update(s *stage, ev *core.Event) int32 {
 
 func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
-	if !b.active {
+	if !b.exist {
 		return
 	}
 
@@ -207,6 +210,10 @@ func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
 }
 
 func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack, s *stage) {
+
+	if !b.exist {
+		return
+	}
 
 	bmp := ap.GetAsset("shadow").(*core.Bitmap)
 
@@ -233,7 +240,7 @@ func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
 func (b *block) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
-	if !b.active {
+	if !b.exist {
 		return
 	}
 
@@ -271,7 +278,7 @@ func newBlock(x, y, id int32) *block {
 	b.renderPos.Y = y * 16
 
 	b.id = id
-	b.active = true
+	b.exist = true
 
 	b.spr = core.NewSprite(16, 16)
 	b.spr.SetFrame(id, 0)
