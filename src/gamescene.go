@@ -28,6 +28,13 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	return err
 }
 
+func (game *gameScene) reset(ev *core.Event) {
+
+	game.gameStage.reset()
+	game.objects.clear()
+	game.gameStage.parseObjects(game.objects)
+}
+
 func (game *gameScene) updateBackground(step int32) {
 
 	game.cloudPos = (game.cloudPos + step) % (512)
@@ -38,7 +45,10 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	game.updateBackground(ev.Step())
 
 	game.gameStage.update(ev)
-	game.objects.update(game.gameStage, ev)
+	if game.objects.update(game.gameStage, ev) {
+
+		game.reset(ev)
+	}
 }
 
 func (game *gameScene) drawBackground(c *core.Canvas, bmp *core.Bitmap) {

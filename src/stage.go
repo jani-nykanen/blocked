@@ -19,6 +19,12 @@ type stage struct {
 	markerSprite *core.Sprite
 }
 
+func (s *stage) reset() {
+
+	s.tilesDrawn = false
+	s.computeInitialSolid()
+}
+
 func (s *stage) computeInitialSolid() {
 
 	for i, v := range s.tiles {

@@ -5,10 +5,11 @@ import (
 )
 
 const (
-	blockMoveTime  = 8
-	blockWrongHole = -1 // ehehehhehehe
+	blockMoveTime = 8
+
 	blockNoHole    = 0
 	blockRightHole = 1
+	blockWrongHole = 2 // ehehehhehehe
 )
 
 type block struct {
@@ -97,13 +98,13 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 		if b.id != 0 {
 
 			hitHole, correctHole = s.checkHoleTile(b.pos.X, b.pos.Y, b.id-1)
-			if hitHole && correctHole {
-
-				b.exist = false
-				b.moving = false
-				b.moveTimer = 0
+			if hitHole {
 
 				if correctHole {
+
+					b.exist = false
+					b.moving = false
+					b.moveTimer = 0
 
 					s.updateSolidTile(b.pos.X, b.pos.Y, 0)
 					return blockRightHole

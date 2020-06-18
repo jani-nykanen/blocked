@@ -81,7 +81,7 @@ func (objm *objectManager) isAnyMoving() bool {
 	return false
 }
 
-func (objm *objectManager) update(s *stage, ev *core.Event) {
+func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 	loop := true
 	// All these loops are required to make it
@@ -109,9 +109,14 @@ func (objm *objectManager) update(s *stage, ev *core.Event) {
 	for _, b := range objm.blocks {
 
 		state = b.update(s, ev)
+
 		if state == blockRightHole {
 
 			objm.createFragments(b)
+
+		} else if state == blockWrongHole {
+
+			return true
 		}
 	}
 
@@ -128,6 +133,8 @@ func (objm *objectManager) update(s *stage, ev *core.Event) {
 
 		b.safeCheck(s)
 	}
+
+	return false
 }
 
 func (objm *objectManager) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
@@ -158,6 +165,12 @@ func (objm *objectManager) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
 		f.draw(c, bmpBlocks)
 	}
+}
+
+func (objm *objectManager) clear() {
+
+	objm.blocks = make([](*block), 0)
+	objm.fragments = make([](*fragment), 0)
 }
 
 func newObjectManager() *objectManager {
