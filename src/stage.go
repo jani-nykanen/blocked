@@ -412,6 +412,10 @@ func (s *stage) drawHoles(c *core.Canvas, ap *core.AssetPack) {
 			c.DrawSpriteFrame(s.holeSprite, bmp,
 				x*16, y*16, s.holeSprite.Frame(),
 				tid, core.FlipNone)
+
+			c.DrawSpriteFrame(s.holeSprite, bmp,
+				x*16, y*16, 4, tid,
+				core.FlipNone)
 		}
 	}
 }
