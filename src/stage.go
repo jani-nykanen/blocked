@@ -508,29 +508,36 @@ func (s *stage) update(ev *core.Event) {
 	const holeAnimSpeed = 6
 	const markerAnimSpeed = 15
 
-	s.holeSprite.Animate(0, 0, 3, holeAnimSpeed, ev.Step())
-	s.markerSprite.Animate(0, 0, 3, markerAnimSpeed, ev.Step())
-
 	if s.shakeTimer > 0 {
 
 		s.shakeTimer -= ev.Step()
+
+	} else {
+
+		s.holeSprite.Animate(0, 0, 3, holeAnimSpeed, ev.Step())
+		s.markerSprite.Animate(0, 0, 3, markerAnimSpeed, ev.Step())
 	}
+}
+
+func (s *stage) getTopLeftCorner(c *core.Canvas) core.Point {
+
+	return core.NewPoint(int32(c.Width())/2-s.width*16/2,
+		int32(c.Height())/2-s.height*16/2)
 }
 
 func (s *stage) setViewport(c *core.Canvas) {
 
 	const shakeMax int32 = 3
 
-	left := int32(c.Width())/2 - s.width*16/2
-	top := int32(c.Height())/2 - s.height*16/2
+	topLeft := s.getTopLeftCorner(c)
 
 	if s.shakeTimer > 0 {
 
-		left += (rand.Int31() % (2 * shakeMax)) - shakeMax
-		top += (rand.Int31() % (2 * shakeMax)) - shakeMax
+		topLeft.X += (rand.Int31() % (2 * shakeMax)) - shakeMax
+		topLeft.Y += (rand.Int31() % (2 * shakeMax)) - shakeMax
 	}
 
-	c.SetViewport(left, top, s.width*16, s.height*16)
+	c.SetViewport(topLeft.X, topLeft.Y, s.width*16, s.height*16)
 }
 
 func (s *stage) dispose() {

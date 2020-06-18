@@ -8,4 +8,5 @@
     <bitmap src="blocks.png" name="blocks" />
     <bitmap src="holes.png" name="holes" />
     <bitmap src="marker.png" name="marker" />
+    <bitmap src="cross.png" name="cross" />
 </assets>

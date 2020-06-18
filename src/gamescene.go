@@ -53,9 +53,9 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 	game.updateBackground(ev.Step())
 
+	game.gameStage.update(ev)
 	if !game.failed {
 
-		game.gameStage.update(ev)
 		if game.objects.update(game.gameStage, ev) {
 
 			game.failed = true
@@ -95,6 +95,23 @@ func (game *gameScene) drawBackground(c *core.Canvas, bmp *core.Bitmap) {
 	}
 }
 
+func (game *gameScene) drawFailureCross(c *core.Canvas, ap *core.AssetPack) {
+
+	t := core.RoundFloat32(float32(game.gameStage.shakeTimer) / 15.0)
+	if t%2 == 1 {
+
+		return
+	}
+
+	topLeft := game.gameStage.getTopLeftCorner(c)
+
+	px := game.objects.failurePoint.X + topLeft.X
+	py := game.objects.failurePoint.Y + topLeft.Y
+
+	c.DrawBitmap(ap.GetAsset("cross").(*core.Bitmap),
+		px-12, py-12, core.FlipNone)
+}
+
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	// This needs to be called before anything else because when
@@ -122,6 +139,11 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.gameStage.drawDecorations(c, ap)
 
 	c.MoveTo(0, 0)
+	if game.failed {
+
+		game.drawFailureCross(c, ap)
+	}
+
 	c.DrawText(ap.GetAsset("font").(*core.Bitmap),
 		"v.0.1.0", 2, 2, -1, 0, false)
 }

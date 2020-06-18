@@ -8,8 +8,9 @@ import (
 )
 
 type objectManager struct {
-	blocks    [](*block)
-	fragments [](*fragment)
+	blocks       [](*block)
+	fragments    [](*fragment)
+	failurePoint core.Point
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
@@ -115,6 +116,12 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 			objm.createFragments(b)
 
 		} else if state == blockWrongHole {
+
+			b.computeRenderingPosition()
+			objm.failurePoint = b.renderPos
+
+			objm.failurePoint.X += 8
+			objm.failurePoint.Y += 8
 
 			return true
 		}
