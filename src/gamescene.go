@@ -154,11 +154,12 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 
 	nameXOff := int32(len(game.gameStage.name)+2) * 8
 	// Beautiful...
-	moveStr := "Moves: " +
-		strconv.Itoa(int(game.objects.moveCount)) +
-		"(" + string(rune(5)) +
+	moveStrLeft := "Moves: "
+	moveStrMiddle := strconv.Itoa(int(game.objects.moveCount))
+	moveStrRight := "(" + string(rune(5)) +
 		strconv.Itoa(int(game.gameStage.bonusMoveLimit)) +
 		")"
+	moveStr := moveStrLeft + moveStrMiddle + moveStrRight
 	moveXOff := int32(len(moveStr)) * 8
 
 	for i := int32(0); i < 2; i++ {
@@ -186,8 +187,23 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 		c.DrawText(bmpFont, string(rune(4)),
 			c.Viewport().W-moveXOff-19, c.Viewport().H-12,
 			0, 0, false)
-		c.DrawText(bmpFont, moveStr,
+		c.DrawText(bmpFont, moveStrLeft,
 			c.Viewport().W-moveXOff-6, c.Viewport().H-12,
+			0, 0, false)
+
+		if game.objects.moveCount > game.gameStage.bonusMoveLimit {
+
+			c.SetBitmapColor(bmpFont, 255, 0, 0)
+		}
+		c.DrawText(bmpFont, moveStrMiddle,
+			c.Viewport().W-moveXOff-6+int32(len(moveStrLeft))*8,
+			c.Viewport().H-12,
+			0, 0, false)
+		c.SetBitmapColor(bmpFont, 255, 255, 255)
+
+		c.DrawText(bmpFont, moveStrRight,
+			c.Viewport().W-moveXOff-6+int32(len(moveStrLeft+moveStrMiddle))*8,
+			c.Viewport().H-12,
 			0, 0, false)
 
 	}

@@ -3,8 +3,8 @@
 
     <param key="window_caption" value="Game" />
 
-    <param key="window_width" value="512" />
-    <param key="window_height" value="384" />
+    <param key="window_width" value="768" />
+    <param key="window_height" value="576" />
 
     <param key="fullscreen" value="false" />
 
