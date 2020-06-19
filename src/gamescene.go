@@ -5,12 +5,13 @@ import (
 )
 
 type gameScene struct {
-	gameStage    *stage
-	objects      *objectManager
-	cloudPos     int32
-	failureTimer int32
-	failed       bool
-	cogSprite    *core.Sprite
+	gameStage       *stage
+	objects         *objectManager
+	cloudPos        int32
+	failureTimer    int32
+	failed          bool
+	cogSprite       *core.Sprite
+	frameTransition *core.TransitionManager
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -31,6 +32,8 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.failed = false
 
 	game.cogSprite = core.NewSprite(48, 48)
+
+	game.frameTransition = core.NewTransitionManager()
 
 	return err
 }
@@ -54,7 +57,15 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 	const failTime int32 = 60
 
+	var cb core.TransitionCallback
+
 	game.updateBackground(ev.Step())
+
+	if game.frameTransition.Active() {
+
+		game.frameTransition.Update(ev)
+		return
+	}
 
 	game.gameStage.update(ev)
 	if !game.failed {
@@ -70,9 +81,16 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	} else {
 
 		game.failureTimer -= ev.Step()
+
 		if game.failureTimer <= 0 {
 
-			game.reset(ev)
+			game.gameStage.shake(0)
+
+			cb = func(ev *core.Event) {
+				game.reset(ev)
+			}
+			game.frameTransition.Activate(true, core.TransitionHorizontalBar,
+				30, core.NewRGB(0, 0, 0), cb)
 		}
 	}
 }
@@ -131,18 +149,20 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.gameStage.drawBackground(c, ap)
 	// Outlines
 	game.gameStage.drawOutlines(c)
-	game.objects.drawOutlines(c, ap, game.gameStage)
+	game.objects.drawOutlines(c, ap)
 	// Base drawing
 	game.gameStage.draw(c, ap)
-	game.objects.draw(c, ap, game.gameStage)
+	game.objects.draw(c, ap)
 	game.gameStage.postDraw(c, ap)
+
+	game.frameTransition.Draw(c)
 
 	c.ResetViewport()
 
 	game.gameStage.drawDecorations(c, ap)
 
 	c.MoveTo(0, 0)
-	if game.failed {
+	if game.failed && !game.frameTransition.Active() {
 
 		game.drawFailureCross(c, ap)
 	}

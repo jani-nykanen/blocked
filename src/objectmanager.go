@@ -144,27 +144,27 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 	return false
 }
 
-func (objm *objectManager) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (objm *objectManager) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
 
 	for _, b := range objm.blocks {
 
-		b.drawOutlines(c, ap, s)
+		b.drawOutlines(c, ap)
 	}
 }
 
-func (objm *objectManager) drawShadows(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (objm *objectManager) drawShadows(c *core.Canvas, ap *core.AssetPack) {
 
 	for _, b := range objm.blocks {
 
-		b.drawShadow(c, ap, s)
+		b.drawShadow(c, ap)
 	}
 }
 
-func (objm *objectManager) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (objm *objectManager) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	for _, b := range objm.blocks {
 
-		b.draw(c, ap, s)
+		b.draw(c, ap)
 	}
 
 	bmpBlocks := ap.GetAsset("blocks").(*core.Bitmap)

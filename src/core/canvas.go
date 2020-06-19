@@ -37,6 +37,7 @@ type Canvas struct {
 	frameTarget sdl.Rect
 	srcRect     sdl.Rect
 	destRect    sdl.Rect
+	viewport    Rectangle
 }
 
 func (c *Canvas) initialize(renderer *sdl.Renderer) error {
@@ -50,6 +51,8 @@ func (c *Canvas) initialize(renderer *sdl.Renderer) error {
 
 		return err
 	}
+
+	c.viewport = NewRect(0, 0, int32(c.width), int32(c.height))
 
 	return err
 }
@@ -249,6 +252,7 @@ func (c *Canvas) SetBitmapAlpha(bmp *Bitmap, a uint8) {
 func (c *Canvas) SetViewport(x, y, w, h int32) {
 
 	c.destRect = sdl.Rect{X: x, Y: y, W: w, H: h}
+	c.viewport = NewRect(x, y, w, h)
 
 	c.renderer.SetViewport(&c.destRect)
 }
@@ -257,7 +261,14 @@ func (c *Canvas) SetViewport(x, y, w, h int32) {
 // target area
 func (c *Canvas) ResetViewport() {
 
+	c.viewport = NewRect(0, 0, int32(c.width), int32(c.height))
 	c.renderer.SetViewport(nil)
+}
+
+// Viewport : Getter for viewport
+func (c *Canvas) Viewport() Rectangle {
+
+	return c.viewport
 }
 
 // Width : A getter for width (it feels silly to comment

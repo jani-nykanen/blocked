@@ -312,7 +312,7 @@ func (s *stage) refreshShadowLayer(c *core.Canvas, ap *core.AssetPack,
 
 		c.ClearToAlpha()
 		s.drawShadows(c, ap)
-		objm.drawShadows(c, ap, s)
+		objm.drawShadows(c, ap)
 	}
 	c.DrawToBitmap(s.shadowLayer, ap, cb)
 }

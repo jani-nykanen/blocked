@@ -183,7 +183,7 @@ func (b *block) update(s *stage, ev *core.Event) int32 {
 	return ret
 }
 
-func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack) {
 
 	if !b.exist {
 		return
@@ -196,20 +196,20 @@ func (b *block) drawOutlines(c *core.Canvas, ap *core.AssetPack, s *stage) {
 
 		if b.dir.X != 0 {
 
-			c.FillRect(b.renderPos.X-1-b.dir.X*s.width*16,
+			c.FillRect(b.renderPos.X-1-b.dir.X*c.Viewport().W,
 				b.renderPos.Y-1, 18, 18,
 				core.NewRGB(0, 0, 0))
 
 		} else if b.dir.Y != 0 {
 
 			c.FillRect(b.renderPos.X-1,
-				b.renderPos.Y-1-b.dir.Y*s.height*16,
+				b.renderPos.Y-1-b.dir.Y*c.Viewport().H,
 				18, 18, core.NewRGB(0, 0, 0))
 		}
 	}
 }
 
-func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack) {
 
 	if !b.exist {
 		return
@@ -225,20 +225,20 @@ func (b *block) drawShadow(c *core.Canvas, ap *core.AssetPack, s *stage) {
 		if b.dir.X != 0 {
 
 			c.DrawSprite(b.spr, bmp,
-				b.renderPos.X-1-b.dir.X*s.width*16,
+				b.renderPos.X-1-b.dir.X*c.Viewport().W,
 				b.renderPos.Y-1, core.FlipNone)
 
 		} else if b.dir.Y != 0 {
 
 			c.DrawSprite(b.spr, bmp,
 				b.renderPos.X-1,
-				b.renderPos.Y-1-b.dir.Y*s.height*16,
+				b.renderPos.Y-1-b.dir.Y*c.Viewport().H,
 				core.FlipNone)
 		}
 	}
 }
 
-func (b *block) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
+func (b *block) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	if !b.exist {
 		return
@@ -254,14 +254,14 @@ func (b *block) draw(c *core.Canvas, ap *core.AssetPack, s *stage) {
 		if b.dir.X != 0 {
 
 			c.DrawSprite(b.spr, bmp,
-				b.renderPos.X-b.dir.X*s.width*16,
+				b.renderPos.X-b.dir.X*c.Viewport().W,
 				b.renderPos.Y, core.FlipNone)
 
 		} else if b.dir.Y != 0 {
 
 			c.DrawSprite(b.spr, bmp,
 				b.renderPos.X,
-				b.renderPos.Y-b.dir.Y*s.height*16,
+				b.renderPos.Y-b.dir.Y*c.Viewport().H,
 				core.FlipNone)
 		}
 	}
