@@ -12,6 +12,8 @@ type objectManager struct {
 	fragments    [](*fragment)
 	failurePoint core.Point
 	blockCount   int32
+	moveCount    int32
+	anyMovingOld bool
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
@@ -91,6 +93,7 @@ func (objm *objectManager) isAnyMoving() bool {
 func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 	loop := true
+
 	// All these loops are required to make it
 	// possible to move several blocks at the
 	// same time "consistently"
@@ -111,6 +114,13 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 			}
 		}
 	}
+
+	moving := objm.isAnyMoving()
+	if moving && !objm.anyMovingOld {
+
+		objm.moveCount++
+	}
+	objm.anyMovingOld = moving
 
 	var state int32
 	for _, b := range objm.blocks {
@@ -187,6 +197,7 @@ func (objm *objectManager) clear() {
 	objm.fragments = make([](*fragment), 0)
 
 	objm.blockCount = 0
+	objm.moveCount = 0
 }
 
 func newObjectManager() *objectManager {
@@ -197,6 +208,7 @@ func newObjectManager() *objectManager {
 	objm.fragments = make([](*fragment), 0)
 
 	objm.blockCount = 0
+	objm.moveCount = 0
 
 	return objm
 }

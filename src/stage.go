@@ -8,19 +8,20 @@ import (
 )
 
 type stage struct {
-	id           int32
-	name         string
-	tmap         *core.Tilemap
-	tiles        []int32
-	solid        []int32
-	width        int32
-	height       int32
-	tileLayer    *core.Bitmap
-	shadowLayer  *core.Bitmap
-	tilesDrawn   bool
-	holeSprite   *core.Sprite
-	markerSprite *core.Sprite
-	shakeTimer   int32
+	id             int32
+	name           string
+	bonusMoveLimit int32
+	tmap           *core.Tilemap
+	tiles          []int32
+	solid          []int32
+	width          int32
+	height         int32
+	tileLayer      *core.Bitmap
+	shadowLayer    *core.Bitmap
+	tilesDrawn     bool
+	holeSprite     *core.Sprite
+	markerSprite   *core.Sprite
+	shakeTimer     int32
 }
 
 func (s *stage) reset() {
@@ -582,6 +583,8 @@ func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 		return nil, err
 	}
 	s.name = s.tmap.GetProperty("name", "null")
+	v, _ := strconv.Atoi(s.tmap.GetProperty("moves", "0"))
+	s.bonusMoveLimit = int32(v)
 
 	s.tileLayer, err = ev.BuildBitmap(
 		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)

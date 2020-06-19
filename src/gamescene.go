@@ -153,7 +153,12 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
 	nameXOff := int32(len(game.gameStage.name)+2) * 8
-	moveStr := "Moves: ..."
+	// Beautiful...
+	moveStr := "Moves: " +
+		strconv.Itoa(int(game.objects.moveCount)) +
+		"(" + string(rune(5)) +
+		strconv.Itoa(int(game.gameStage.bonusMoveLimit)) +
+		")"
 	moveXOff := int32(len(moveStr)) * 8
 
 	for i := int32(0); i < 2; i++ {
@@ -178,6 +183,9 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 			8, c.Viewport().H-12, -1, 0, false)
 
 		// Moves
+		c.DrawText(bmpFont, string(rune(4)),
+			c.Viewport().W-moveXOff-19, c.Viewport().H-12,
+			0, 0, false)
 		c.DrawText(bmpFont, moveStr,
 			c.Viewport().W-moveXOff-6, c.Viewport().H-12,
 			0, 0, false)
