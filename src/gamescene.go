@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
@@ -38,7 +40,7 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	return err
 }
 
-func (game *gameScene) reset(ev *core.Event) {
+func (game *gameScene) resetEvent(ev *core.Event) {
 
 	game.gameStage.reset()
 	game.objects.clear()
@@ -53,11 +55,18 @@ func (game *gameScene) updateBackground(step int32) {
 	game.cloudPos = (game.cloudPos + step) % (512)
 }
 
+func (game *gameScene) reset(ev *core.Event) {
+
+	cb := func(ev *core.Event) {
+		game.resetEvent(ev)
+	}
+	game.frameTransition.Activate(true, core.TransitionHorizontalBar,
+		30, core.NewRGB(0, 0, 0), cb)
+}
+
 func (game *gameScene) Refresh(ev *core.Event) {
 
 	const failTime int32 = 60
-
-	var cb core.TransitionCallback
 
 	game.updateBackground(ev.Step())
 
@@ -69,6 +78,12 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 	game.gameStage.update(ev)
 	if !game.failed {
+
+		if ev.Input.GetActionState("reset") == core.StatePressed {
+
+			game.reset(ev)
+			return
+		}
 
 		if game.objects.update(game.gameStage, ev) {
 
@@ -85,12 +100,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		if game.failureTimer <= 0 {
 
 			game.gameStage.shake(0)
-
-			cb = func(ev *core.Event) {
-				game.reset(ev)
-			}
-			game.frameTransition.Activate(true, core.TransitionHorizontalBar,
-				30, core.NewRGB(0, 0, 0), cb)
+			game.reset(ev)
 		}
 	}
 }
@@ -133,7 +143,51 @@ func (game *gameScene) drawFailureCross(c *core.Canvas, ap *core.AssetPack) {
 		px-12, py-12, core.FlipNone)
 }
 
+func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
+
+	const shadowOff int32 = 1
+
+	alpha := []uint8{85, 255}
+	color := []uint8{0, 255}
+
+	bmpFont := ap.GetAsset("font").(*core.Bitmap)
+
+	nameXOff := int32(len(game.gameStage.name)+2) * 8
+	moveStr := "Moves: ..."
+	moveXOff := int32(len(moveStr)) * 8
+
+	for i := int32(0); i < 2; i++ {
+
+		c.SetBitmapAlpha(bmpFont, alpha[i])
+		c.SetBitmapColor(bmpFont, color[i], color[i], color[i])
+
+		c.MoveTo((1-i)*shadowOff, (1-i)*shadowOff)
+
+		// Stage number
+		c.DrawText(bmpFont,
+			"STAGE "+strconv.Itoa(int(game.gameStage.id)),
+			8, 6, 0, 0, false)
+
+		// Stage name
+		c.DrawText(bmpFont, "\""+game.gameStage.name+"\"",
+			c.Viewport().W-nameXOff-6, 6, 0, 0, false)
+
+		// Blocks left
+		c.DrawText(bmpFont,
+			string(rune(3))+" Left: "+strconv.Itoa(int(game.objects.blockCount)),
+			8, c.Viewport().H-12, -1, 0, false)
+
+		// Moves
+		c.DrawText(bmpFont, moveStr,
+			c.Viewport().W-moveXOff-6, c.Viewport().H-12,
+			0, 0, false)
+
+	}
+}
+
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
+
+	c.MoveTo(0, 0)
 
 	// This needs to be called before anything else because when
 	// (re)starting the stage, calling this after background
@@ -145,6 +199,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.gameStage.refreshShadowLayer(c, ap, game.objects)
 
 	game.gameStage.setViewport(c)
+
 	// Background stuff, drawn before outlines
 	game.gameStage.drawBackground(c, ap)
 	// Outlines
@@ -167,8 +222,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 		game.drawFailureCross(c, ap)
 	}
 
-	c.DrawText(ap.GetAsset("font").(*core.Bitmap),
-		"v.0.1.0", 2, 2, -1, 0, false)
+	game.DrawHUD(c, ap)
 }
 
 func (game *gameScene) Dispose() {

@@ -145,9 +145,6 @@ func (c *Canvas) DrawText(font *Bitmap, text string,
 	ch := cw
 	length := len(text)
 
-	dx += c.translation.X
-	dy += c.translation.Y
-
 	x := dx
 	y := dy
 

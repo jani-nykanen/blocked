@@ -11,11 +11,17 @@ type objectManager struct {
 	blocks       [](*block)
 	fragments    [](*fragment)
 	failurePoint core.Point
+	blockCount   int32
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
 
 	objm.blocks = append(objm.blocks, newBlock(x, y, id))
+
+	if id > 0 {
+
+		objm.blockCount++
+	}
 }
 
 func (objm *objectManager) nextFragment() *fragment {
@@ -114,6 +120,7 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 		if state == blockRightHole {
 
 			objm.createFragments(b)
+			objm.blockCount--
 
 		} else if state == blockWrongHole {
 
@@ -178,6 +185,8 @@ func (objm *objectManager) clear() {
 
 	objm.blocks = make([](*block), 0)
 	objm.fragments = make([](*fragment), 0)
+
+	objm.blockCount = 0
 }
 
 func newObjectManager() *objectManager {
@@ -186,6 +195,8 @@ func newObjectManager() *objectManager {
 
 	objm.blocks = make([](*block), 0)
 	objm.fragments = make([](*fragment), 0)
+
+	objm.blockCount = 0
 
 	return objm
 }

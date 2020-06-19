@@ -8,6 +8,8 @@ import (
 )
 
 type stage struct {
+	id           int32
+	name         string
 	tmap         *core.Tilemap
 	tiles        []int32
 	solid        []int32
@@ -572,11 +574,14 @@ func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 	s := new(stage)
 	var err error
 
+	s.id = mapIndex
+
 	s.tmap, err = core.ParseTMX(basePath + strconv.Itoa(int(mapIndex)) + ".tmx")
 	if err != nil {
 
 		return nil, err
 	}
+	s.name = s.tmap.GetProperty("name", "null")
 
 	s.tileLayer, err = ev.BuildBitmap(
 		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)
