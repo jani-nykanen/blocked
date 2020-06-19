@@ -27,7 +27,7 @@ type block struct {
 
 func (b *block) handleControls(s *stage, ev *core.Event) bool {
 
-	if b.moving {
+	if !b.exist || b.moving {
 
 		return false
 	}

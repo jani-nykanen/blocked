@@ -10,6 +10,7 @@ type gameScene struct {
 	cloudPos     int32
 	failureTimer int32
 	failed       bool
+	cogSprite    *core.Sprite
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -28,6 +29,8 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.cloudPos = 0
 	game.failureTimer = 0
 	game.failed = false
+
+	game.cogSprite = core.NewSprite(48, 48)
 
 	return err
 }
