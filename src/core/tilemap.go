@@ -81,6 +81,14 @@ func (t *Tilemap) GetProperty(key string, def string) string {
 	return def
 }
 
+// GetNumericProperty : Get value of a numeric property
+func (t *Tilemap) GetNumericProperty(key string, def int32) int32 {
+
+	v, _ := strconv.Atoi(t.GetProperty(key, strconv.Itoa(int(def))))
+
+	return int32(v)
+}
+
 func parseCSV(data string) []int32 {
 
 	reader := csv.NewReader(strings.NewReader(data))

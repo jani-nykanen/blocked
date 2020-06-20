@@ -11,6 +11,7 @@ type stage struct {
 	id             int32
 	name           string
 	bonusMoveLimit int32
+	difficulty     int32
 	tmap           *core.Tilemap
 	tiles          []int32
 	solid          []int32
@@ -583,8 +584,8 @@ func newStage(mapIndex int32, ev *core.Event) (*stage, error) {
 		return nil, err
 	}
 	s.name = s.tmap.GetProperty("name", "null")
-	v, _ := strconv.Atoi(s.tmap.GetProperty("moves", "0"))
-	s.bonusMoveLimit = int32(v)
+	s.bonusMoveLimit = s.tmap.GetNumericProperty("moves", 0)
+	s.difficulty = s.tmap.GetNumericProperty("difficulty", 1)
 
 	s.tileLayer, err = ev.BuildBitmap(
 		uint32(s.tmap.Width()*16), uint32(s.tmap.Height()*16), true)

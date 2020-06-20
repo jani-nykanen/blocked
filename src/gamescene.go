@@ -149,10 +149,13 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 
 	alpha := []uint8{85, 255}
 	color := []uint8{0, 255}
+	// Might need to come up with a better name to
+	// the hardest difficulty...
+	difficultyNames := []string{
+		"Normal", "Hard", "Expert", "Master"}
 
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
-	nameXOff := int32(len(game.gameStage.name)+2) * 8
 	// Beautiful...
 	moveStrLeft := "Moves: "
 	moveStrMiddle := strconv.Itoa(int(game.objects.moveCount))
@@ -161,6 +164,12 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 		")"
 	moveStr := moveStrLeft + moveStrMiddle + moveStrRight
 	moveXOff := int32(len(moveStr)) * 8
+
+	diff := core.ClampInt32(game.gameStage.difficulty, 1, 4)
+	difficultyStr := string(rune(5+diff)) +
+		" " +
+		difficultyNames[diff-1]
+	diffXOff := int32(len(difficultyStr)) * 7
 
 	for i := int32(0); i < 2; i++ {
 
@@ -176,7 +185,11 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 
 		// Stage name
 		c.DrawText(bmpFont, "\""+game.gameStage.name+"\"",
-			c.Viewport().W-nameXOff-6, 6, 0, 0, false)
+			c.Viewport().W/2, 6, 0, 0, true)
+
+		// Stage difficulty
+		c.DrawText(bmpFont, difficultyStr,
+			c.Viewport().W-diffXOff-6, 6, -1, 0, false)
 
 		// Blocks left
 		c.DrawText(bmpFont,

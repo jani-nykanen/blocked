@@ -64,3 +64,10 @@ func ClampFloat32(x float32, min float32, max float32) float32 {
 	return float32(math.Min(float64(max),
 		math.Max(float64(x), float64(min))))
 }
+
+// ClampInt32 : "Clamps" the given integer to the interval
+// [min, max]
+func ClampInt32(x int32, min int32, max int32) int32 {
+
+	return int32(MinInt32(max, MaxInt32(x, min)))
+}
