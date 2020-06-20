@@ -1,5 +1,7 @@
 package core
 
+import "math"
+
 // TransitionCallback : A callback for
 // transition events
 type TransitionCallback func(ev *Event)
@@ -13,6 +15,7 @@ const (
 	TransitionFade          = 1
 	TransitionVerticalBar   = 2
 	TransitionHorizontalBar = 3
+	TransitionCircleOutside = 4
 )
 
 // TransitionManager : Used for different kind of
@@ -72,6 +75,7 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 	}
 
 	var w, h int32
+	var radius int32
 
 	// TODO: Implement the rest
 	switch tr.mode {
@@ -85,6 +89,14 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 		c.FillRect(0, 0, w, h, tr.color)
 		// Bottom half
 		c.FillRect(0, c.viewport.H-h, w, h, tr.color)
+
+		break
+
+	case TransitionCircleOutside:
+
+		t = 1.0 - t
+		radius = RoundFloat32(t * float32(math.Hypot(float64(c.viewport.W/2), float64(c.viewport.H/2))))
+		c.FillCircleOutside(c.viewport.W/2, c.viewport.H/2, radius, tr.color)
 
 		break
 

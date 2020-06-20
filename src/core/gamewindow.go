@@ -20,6 +20,7 @@ type GameWindow struct {
 	assets      *AssetPack
 	assetPath   string
 	bbuilder    *BitmapBuilder
+	tr          *TransitionManager
 	ev          *Event
 	activeScene Scene
 }
@@ -189,6 +190,7 @@ func (win *GameWindow) mainLoop() {
 		win.activeScene.Refresh(win.ev)
 
 		win.input.refresh()
+		win.tr.Update(win.ev)
 
 		redraw = true
 
@@ -207,6 +209,8 @@ func (win *GameWindow) mainLoop() {
 		win.baseCanvas.begin()
 
 		win.activeScene.Redraw(win.baseCanvas, win.assets)
+
+		win.tr.Draw(win.baseCanvas)
 
 		win.baseCanvas.end()
 	}
@@ -343,8 +347,11 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 		window.input = builder.input
 	}
 
+	window.tr = NewTransitionManager()
+
 	window.bbuilder = newBitmapBuilder(window.renderer)
-	window.ev = newEvent(window, 0, window.input, window.assets, window.bbuilder)
+	window.ev = newEvent(window, 0, window.input, window.assets,
+		window.bbuilder, window.tr)
 
 	return window, err
 }

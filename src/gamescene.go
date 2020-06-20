@@ -22,17 +22,23 @@ func (game *gameScene) createPauseMenu(ev *core.Event) {
 	buttons := []menuButton{
 
 		newMenuButton("Resume", func(ev *core.Event) {
-			game.pauseMenu.active = false
+			game.pauseMenu.deactivate()
 		}),
 		newMenuButton("Reset", func(ev *core.Event) {
 			game.reset(ev)
-			game.pauseMenu.active = false
+			game.pauseMenu.deactivate()
 		}),
 		newMenuButton("Settings", func(ev *core.Event) {
 			// ...
 		}),
 		newMenuButton("Quit", func(ev *core.Event) {
-			ev.Terminate()
+
+			game.pauseMenu.deactivate()
+
+			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
+				core.NewRGB(0, 0, 0), func(ev *core.Event) {
+					ev.Terminate()
+				})
 		}),
 	}
 
@@ -85,13 +91,17 @@ func (game *gameScene) reset(ev *core.Event) {
 	cb := func(ev *core.Event) {
 		game.resetEvent(ev)
 	}
-	game.frameTransition.Activate(true, core.TransitionHorizontalBar,
+	game.frameTransition.Activate(true, core.TransitionCircleOutside,
 		30, core.NewRGB(0, 0, 0), cb)
 }
 
 func (game *gameScene) Refresh(ev *core.Event) {
 
 	const failTime int32 = 60
+
+	if ev.Transition.Active() {
+		return
+	}
 
 	if !game.pauseMenu.active {
 		game.updateBackground(ev.Step())

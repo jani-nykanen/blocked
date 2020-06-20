@@ -7,11 +7,13 @@ type Event struct {
 	step       int32
 	Input      *InputManager
 	Assets     *AssetPack
+	Transition *TransitionManager
 	bmpBuilder *BitmapBuilder
 }
 
 func newEvent(gw *GameWindow, frameSkip int32,
-	input *InputManager, assets *AssetPack, bbuilder *BitmapBuilder) *Event {
+	input *InputManager, assets *AssetPack, bbuilder *BitmapBuilder,
+	tr *TransitionManager) *Event {
 
 	ev := new(Event)
 
@@ -20,6 +22,7 @@ func newEvent(gw *GameWindow, frameSkip int32,
 	ev.Assets = assets
 	ev.bmpBuilder = bbuilder
 	ev.gw = gw
+	ev.Transition = tr
 
 	return ev
 }

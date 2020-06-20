@@ -39,6 +39,11 @@ func (m *menu) activate(cursorPos int32) {
 	}
 }
 
+func (m *menu) deactivate() {
+
+	m.active = false
+}
+
 func (m *menu) update(ev *core.Event) {
 
 	const waveTime float32 = 0.1

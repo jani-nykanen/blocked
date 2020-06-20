@@ -1,6 +1,8 @@
 package core
 
 import (
+	"math"
+
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -190,6 +192,61 @@ func (c *Canvas) FillRect(x, y, w, h int32, color Color) {
 
 	c.renderer.FillRect(&c.destRect)
 
+}
+
+// FillCircleOutside : Fill area outside the circle
+func (c *Canvas) FillCircleOutside(cx, cy, radius int32, color Color) {
+
+	w := c.viewport.W
+	h := c.viewport.H
+
+	if radius <= 0 {
+
+		c.FillRect(0, 0, w, h, color)
+		return
+
+	} else if radius*radius >= w*w+h*h {
+
+		return
+	}
+
+	start := MaxInt32(0, cy-radius)
+	end := MinInt32(h, cy+radius)
+
+	if start > 0 {
+		c.FillRect(0, 0, w, start, color)
+	}
+
+	if end < h {
+		c.FillRect(0, end, w, h-end, color)
+	}
+
+	var dy int32
+	var px1, px2 int32
+	for y := int32(start); y < end; y++ {
+
+		dy = y - cy
+
+		// A full line
+		if int32(math.Abs(float64(dy))) >= radius {
+
+			c.FillRect(0, y, w, 1, color)
+			continue
+		}
+
+		px1 = cx - int32(math.Sqrt(float64(radius*radius-dy*dy)))
+		px2 = cx + int32(math.Sqrt(float64(radius*radius-dy*dy)))
+
+		// Fill left
+		if px1 > 0 {
+			c.FillRect(0, y, px1, 1, color)
+		}
+		// Fill right
+		if px2 < w {
+
+			c.FillRect(px2, y, w-px1, 1, color)
+		}
+	}
 }
 
 // DrawSpriteFrame : Draw an animated sprite frame
