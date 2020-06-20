@@ -14,6 +14,29 @@ type gameScene struct {
 	failed          bool
 	cogSprite       *core.Sprite
 	frameTransition *core.TransitionManager
+	pauseMenu       *menu
+}
+
+func (game *gameScene) createPauseMenu(ev *core.Event) {
+
+	buttons := []menuButton{
+
+		newMenuButton("Resume", func(ev *core.Event) {
+			game.pauseMenu.active = false
+		}),
+		newMenuButton("Reset", func(ev *core.Event) {
+			game.reset(ev)
+			game.pauseMenu.active = false
+		}),
+		newMenuButton("Settings", func(ev *core.Event) {
+			// ...
+		}),
+		newMenuButton("Quit", func(ev *core.Event) {
+			ev.Terminate()
+		}),
+	}
+
+	game.pauseMenu = newMenu(buttons)
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -36,6 +59,8 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.cogSprite = core.NewSprite(48, 48)
 
 	game.frameTransition = core.NewTransitionManager()
+
+	game.createPauseMenu(ev)
 
 	return err
 }
@@ -68,14 +93,31 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 	const failTime int32 = 60
 
-	game.updateBackground(ev.Step())
+	if !game.pauseMenu.active {
+		game.updateBackground(ev.Step())
+	}
 
+	// Transition
 	if game.frameTransition.Active() {
 
 		game.frameTransition.Update(ev)
 		return
 	}
 
+	// Pause menu
+	if game.pauseMenu.active {
+
+		game.pauseMenu.update(ev)
+		return
+
+	} else if !game.failed &&
+		ev.Input.GetActionState("start") == core.StatePressed {
+
+		game.pauseMenu.activate(0)
+		return
+	}
+
+	// The rest
 	game.gameStage.update(ev)
 	if !game.failed {
 
@@ -259,6 +301,8 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	}
 
 	game.DrawHUD(c, ap)
+
+	game.pauseMenu.draw(c, ap)
 }
 
 func (game *gameScene) Dispose() {

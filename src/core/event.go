@@ -3,13 +3,15 @@ package core
 // Event : A "bridge" between the active scene
 // and the application
 type Event struct {
+	gw         *GameWindow
 	step       int32
 	Input      *InputManager
 	Assets     *AssetPack
 	bmpBuilder *BitmapBuilder
 }
 
-func newEvent(frameSkip int32, input *InputManager, assets *AssetPack, bbuilder *BitmapBuilder) *Event {
+func newEvent(gw *GameWindow, frameSkip int32,
+	input *InputManager, assets *AssetPack, bbuilder *BitmapBuilder) *Event {
 
 	ev := new(Event)
 
@@ -17,6 +19,7 @@ func newEvent(frameSkip int32, input *InputManager, assets *AssetPack, bbuilder 
 	ev.Input = input
 	ev.Assets = assets
 	ev.bmpBuilder = bbuilder
+	ev.gw = gw
 
 	return ev
 }
@@ -31,4 +34,10 @@ func (ev *Event) Step() int32 {
 func (ev *Event) BuildBitmap(width, height uint32, isTarget bool) (*Bitmap, error) {
 
 	return ev.bmpBuilder.build(width, height, isTarget)
+}
+
+// Terminate : Terminate the application
+func (ev *Event) Terminate() {
+
+	ev.gw.running = false
 }

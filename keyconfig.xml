@@ -6,8 +6,8 @@
     <action name="down"   key="81" joyaxis="1" joydir="1" />
 
     <action name="select" key="44" joybutton="0" />
-    <action name="start"  key="40" joybutton="6" />
-    <action name="back"   key="41" joybutton="7" />
+    <action name="start"  key="40" joybutton="7" />
+    <action name="back"   key="41" joybutton="6" />
 
     <action name="reset"  key="21" joybutton="3" />
 

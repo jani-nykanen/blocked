@@ -344,7 +344,7 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 	}
 
 	window.bbuilder = newBitmapBuilder(window.renderer)
-	window.ev = newEvent(0, window.input, window.assets, window.bbuilder)
+	window.ev = newEvent(window, 0, window.input, window.assets, window.bbuilder)
 
 	return window, err
 }
