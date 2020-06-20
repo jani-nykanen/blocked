@@ -218,7 +218,6 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 			c.Viewport().W-moveXOff-6+int32(len(moveStrLeft+moveStrMiddle))*8,
 			c.Viewport().H-12,
 			0, 0, false)
-
 	}
 }
 

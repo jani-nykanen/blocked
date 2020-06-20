@@ -13,7 +13,6 @@ type objectManager struct {
 	failurePoint core.Point
 	blockCount   int32
 	moveCount    int32
-	anyMovingOld bool
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
@@ -93,6 +92,7 @@ func (objm *objectManager) isAnyMoving() bool {
 func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 	loop := true
+	increaseMovementCounter := false
 
 	// All these loops are required to make it
 	// possible to move several blocks at the
@@ -107,6 +107,7 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 				if b.handleControls(s, ev) {
 
 					loop = true
+					increaseMovementCounter = true
 				}
 			}
 			if !loop {
@@ -115,12 +116,10 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 		}
 	}
 
-	moving := objm.isAnyMoving()
-	if moving && !objm.anyMovingOld {
+	if increaseMovementCounter {
 
 		objm.moveCount++
 	}
-	objm.anyMovingOld = moving
 
 	var state int32
 	for _, b := range objm.blocks {
