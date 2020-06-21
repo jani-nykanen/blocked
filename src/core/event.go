@@ -44,3 +44,12 @@ func (ev *Event) Terminate() {
 
 	ev.gw.running = false
 }
+
+// ToggleFullscreen : Enters/leaves fullscreen mode
+// and return the current state
+func (ev *Event) ToggleFullscreen() bool {
+
+	ev.gw.toggleFullscreen()
+
+	return ev.gw.fullscreen
+}

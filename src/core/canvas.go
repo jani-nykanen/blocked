@@ -36,6 +36,7 @@ type Canvas struct {
 	translation Point
 	renderer    *sdl.Renderer
 	frame       *Bitmap
+	frameCopy   *Bitmap
 	frameTarget sdl.Rect
 	srcRect     sdl.Rect
 	destRect    sdl.Rect
@@ -51,6 +52,13 @@ func (c *Canvas) initialize(renderer *sdl.Renderer) error {
 	c.frame, err = newBitmap(c.width, c.height, true, renderer)
 	if err != nil {
 
+		return err
+	}
+
+	c.frameCopy, err = newBitmap(c.width, c.height, true, renderer)
+	if err != nil {
+
+		c.frame.Dispose()
 		return err
 	}
 
@@ -94,6 +102,7 @@ func (c *Canvas) resize(w, h int32) {
 func (c *Canvas) dispose() {
 
 	c.frame.Dispose()
+	c.frameCopy.Dispose()
 }
 
 // Clear : Clear the screen with a color
@@ -286,6 +295,22 @@ func (c *Canvas) DrawToBitmap(bmp *Bitmap, ap *AssetPack, cb RenderCallback) {
 	c.renderer.SetRenderTarget(bmp.texture)
 	cb(c, ap)
 	c.renderer.SetRenderTarget(oldTarget)
+}
+
+// CopyCurrentFrame : Copy current frame to the buffer,
+// so it can be drawn as a bitmap
+func (c *Canvas) CopyCurrentFrame() {
+
+	c.DrawToBitmap(c.frameCopy, nil, func(c *Canvas, ap *AssetPack) {
+
+		c.DrawBitmap(c.frame, 0, 0, FlipNone)
+	})
+}
+
+// DrawCopiedFrame : Draw the copied frame as a bitmap
+func (c *Canvas) DrawCopiedFrame(x, y int32, flip Flip) {
+
+	c.DrawBitmap(c.frameCopy, x, y, flip)
 }
 
 // SetBitmapColor : Set color to be used when drawing

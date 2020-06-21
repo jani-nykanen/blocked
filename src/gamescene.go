@@ -15,6 +15,7 @@ type gameScene struct {
 	cogSprite       *core.Sprite
 	frameTransition *core.TransitionManager
 	pauseMenu       *menu
+	settingsScreen  *settings
 }
 
 func (game *gameScene) createPauseMenu(ev *core.Event) {
@@ -29,7 +30,7 @@ func (game *gameScene) createPauseMenu(ev *core.Event) {
 			game.pauseMenu.deactivate()
 		}),
 		newMenuButton("Settings", func(ev *core.Event) {
-			// ...
+			game.settingsScreen.activate()
 		}),
 		newMenuButton("Quit", func(ev *core.Event) {
 
@@ -66,6 +67,7 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 	game.frameTransition = core.NewTransitionManager()
 
+	game.settingsScreen = newSettings()
 	game.createPauseMenu(ev)
 
 	return err
@@ -100,6 +102,12 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	const failTime int32 = 60
 
 	if ev.Transition.Active() {
+		return
+	}
+
+	if game.settingsScreen.active() {
+
+		game.settingsScreen.update(ev)
 		return
 	}
 
@@ -276,6 +284,13 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	c.MoveTo(0, 0)
+	c.ResetViewport()
+
+	if game.settingsScreen.active() {
+
+		game.settingsScreen.draw(c, ap)
+		return
+	}
 
 	// This needs to be called before anything else because when
 	// (re)starting the stage, calling this after background
