@@ -9,4 +9,6 @@
     <bitmap src="holes.png" name="holes" />
     <bitmap src="marker.png" name="marker" />
     <bitmap src="cross.png" name="cross" />
+    <bitmap src="levelmenu_background.png" name="levelmenuBackground" />
+    <bitmap src="levelbuttons.png" name="levelButtons" />
 </assets>

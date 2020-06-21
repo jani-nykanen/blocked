@@ -38,7 +38,11 @@ func (game *gameScene) createPauseMenu(ev *core.Event) {
 
 			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
 				core.NewRGB(0, 0, 0), func(ev *core.Event) {
-					ev.Terminate()
+					err := ev.ChangeScene(newLevelMenuScene())
+					if err != nil {
+
+						ev.Terminate(err)
+					}
 				})
 		}),
 	}
@@ -330,9 +334,11 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.pauseMenu.draw(c, ap)
 }
 
-func (game *gameScene) Dispose() {
+func (game *gameScene) Dispose() interface{} {
 
 	game.gameStage.dispose()
+
+	return nil
 }
 
 func newGameScene() core.Scene {

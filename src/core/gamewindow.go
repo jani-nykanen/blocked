@@ -23,6 +23,7 @@ type GameWindow struct {
 	tr          *TransitionManager
 	ev          *Event
 	activeScene Scene
+	err         error
 }
 
 func (win *GameWindow) createWindow(width, height uint32, caption string) error {
@@ -251,6 +252,20 @@ func (win *GameWindow) checkDefaultKeyShortcuts() {
 	}
 }
 
+func (win *GameWindow) changeScene(newScene Scene) error {
+
+	oldScene := win.activeScene
+	win.activeScene = newScene
+
+	return win.activeScene.Activate(win.ev, oldScene.Dispose)
+}
+
+func (win *GameWindow) terminate(err error) {
+
+	win.running = false
+	win.err = err
+}
+
 // Dispose : Dispose the game window
 func (win *GameWindow) Dispose() {
 
@@ -279,6 +294,11 @@ func (win *GameWindow) Launch(initialScene Scene) error {
 	for win.running {
 
 		win.mainLoop()
+	}
+
+	if err == nil {
+
+		err = win.err
 	}
 
 	return err
@@ -352,6 +372,8 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 	window.bbuilder = newBitmapBuilder(window.renderer)
 	window.ev = newEvent(window, 0, window.input, window.assets,
 		window.bbuilder, window.tr)
+
+	window.err = nil
 
 	return window, err
 }

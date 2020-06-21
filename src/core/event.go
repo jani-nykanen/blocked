@@ -40,9 +40,9 @@ func (ev *Event) BuildBitmap(width, height uint32, isTarget bool) (*Bitmap, erro
 }
 
 // Terminate : Terminate the application
-func (ev *Event) Terminate() {
+func (ev *Event) Terminate(err error) {
 
-	ev.gw.running = false
+	ev.gw.terminate(err)
 }
 
 // ToggleFullscreen : Enters/leaves fullscreen mode
@@ -52,4 +52,10 @@ func (ev *Event) ToggleFullscreen() bool {
 	ev.gw.toggleFullscreen()
 
 	return ev.gw.fullscreen
+}
+
+// ChangeScene : Change the active scene
+func (ev *Event) ChangeScene(newScene Scene) error {
+
+	return ev.gw.changeScene(newScene)
 }

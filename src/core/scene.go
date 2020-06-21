@@ -5,5 +5,5 @@ type Scene interface {
 	Activate(ev *Event, param interface{}) error
 	Refresh(ev *Event)
 	Redraw(c *Canvas, ap *AssetPack)
-	Dispose()
+	Dispose() interface{}
 }
