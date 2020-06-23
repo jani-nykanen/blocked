@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
@@ -25,6 +27,15 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 
 		ev.Transition.Activate(false, core.TransitionCircleOutside,
 			30, core.NewRGB(0, 0, 0), nil)
+	}
+
+	var p int32
+	if param != nil {
+
+		p = param.(int32)
+
+		lm.grid.cursorPos.X = p % lm.grid.width
+		lm.grid.cursorPos.Y = p & lm.grid.height
 	}
 
 	return nil
@@ -68,14 +79,17 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 					ev.Terminate(nil)
 				}
 			})
-		ev.Transition.SetCenter(lm.grid.cursorRenderCenter.X,
-			lm.grid.cursorRenderCenter.Y)
+		// TODO: The constant 4 is the same as the shadow offset in
+		// level button rendering, so it should be "fetched" somewhere!
+		ev.Transition.SetCenter(lm.grid.cursorRenderCenter.X+4,
+			lm.grid.cursorRenderCenter.Y+4)
 	}
 }
 
 func (lm *levelMenu) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	bg := ap.GetAsset("levelmenuBackground").(*core.Bitmap)
+	font := ap.GetAsset("font").(*core.Bitmap)
 
 	// Background
 	pos := lm.bgPos / levelMenuSpeedDivisor
@@ -89,6 +103,23 @@ func (lm *levelMenu) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	// Level grid stuff
 	lm.grid.draw(c, ap)
+
+	// Header
+	c.DrawText(font, "SELECT A STAGE", c.Viewport().W/2, 6,
+		0, 0, true)
+
+	// Bottom stuff
+	if lm.grid.selectedIndex > 0 {
+
+		c.DrawText(font, "STAGE "+strconv.Itoa(int(lm.grid.selectedIndex)),
+			6, c.Viewport().H-12,
+			0, 0, false)
+
+		// Temporary
+		c.DrawText(font, "(Additional info...)",
+			c.Viewport().W/3*2, c.Viewport().H-12,
+			-1, 0, true)
+	}
 }
 
 func (lm *levelMenu) Dispose() interface{} {

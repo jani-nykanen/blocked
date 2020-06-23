@@ -175,7 +175,7 @@ func (win *GameWindow) mainLoop() {
 	// suddenly delta time is several minutes!)
 	const maxUpdate = 5
 
-	waitTime := uint32(1000/(60/win.ev.step) + 1)
+	waitTime := uint32(1000 / (60 / win.ev.step)) // +1 here?
 
 	newTime := sdl.GetTicks()
 	// This might look confusing, but we just want to make sure
@@ -292,6 +292,9 @@ func (win *GameWindow) Launch(initialScene Scene) error {
 
 		return err
 	}
+
+	win.timeSum = 0
+	win.oldTime = sdl.GetTicks()
 
 	for win.running {
 

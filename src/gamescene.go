@@ -53,8 +53,13 @@ func (game *gameScene) createPauseMenu(ev *core.Event) {
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 	var err error
+	index := int32(1)
+	if param != nil {
 
-	game.gameStage, err = newStage(1, ev)
+		index = param.(int32)
+	}
+
+	game.gameStage, err = newStage(index, ev)
 	if err != nil {
 
 		return err
@@ -338,7 +343,7 @@ func (game *gameScene) Dispose() interface{} {
 
 	game.gameStage.dispose()
 
-	return nil
+	return game.gameStage.id
 }
 
 func newGameScene() core.Scene {

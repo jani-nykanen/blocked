@@ -121,11 +121,19 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack) {
 	// Draw buttons
 	dy := top + buttonOffset/2
 
-	for i, m := range m.buttons {
+	for i, b := range m.buttons {
 
-		c.DrawText(bmpFont, m.text,
+		if int32(i) == m.cursorPos {
+			c.SetBitmapColor(bmpFont, 255, 255, 0)
+		}
+
+		c.DrawText(bmpFont, b.text,
 			left+16, dy+int32(i)*buttonOffset,
 			0, 0, false)
+
+		if int32(i) == m.cursorPos {
+			c.SetBitmapColor(bmpFont, 255, 255, 255)
+		}
 	}
 
 	// Cursor

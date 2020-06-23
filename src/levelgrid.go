@@ -1,6 +1,10 @@
 package main
 
-import "github.com/jani-nykanen/ultimate-puzzle/src/core"
+import (
+	"strconv"
+
+	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+)
 
 const (
 	levelButtonActivationTime int32 = 16
@@ -48,7 +52,9 @@ func (lb *levelButton) update(active bool, ev *core.Event) bool {
 	return false
 }
 
-func (lb *levelButton) draw(c *core.Canvas, bmp *core.Bitmap) {
+func (lb *levelButton) draw(c *core.Canvas, bmp *core.Bitmap, bpmFont *core.Bitmap) {
+
+	const shadowOff int32 = 4
 
 	sx := int32(0)
 	if lb.active {
@@ -56,7 +62,37 @@ func (lb *levelButton) draw(c *core.Canvas, bmp *core.Bitmap) {
 		sx = 32
 	}
 
-	c.DrawBitmapRegion(bmp, sx, 0, 32, 32, 0, 0, core.FlipNone)
+	pos := core.RoundFloat32(
+		float32(lb.activationTimer) / float32(levelButtonActivationTime) *
+			float32(shadowOff))
+
+	// Shadow
+	c.SetBitmapAlpha(bmp, 85)
+	c.SetBitmapColor(bmp, 0, 0, 0)
+	c.DrawBitmapRegion(bmp, sx, 0, 32, 32, shadowOff, shadowOff, core.FlipNone)
+
+	// Base button
+	c.SetBitmapAlpha(bmp, 255)
+	c.SetBitmapColor(bmp, 255, 255, 255)
+	c.DrawBitmapRegion(bmp, sx, 0, 32, 32, pos, pos, core.FlipNone)
+
+	// Icon
+	sx = lb.beatState * 32
+	sy := int32(32)
+	if lb.index == 0 {
+		sy = 0
+		sx = 64
+	}
+	c.DrawBitmapRegion(bmp, sx, sy, 32, 32, pos, pos, core.FlipNone)
+
+	// Level index
+	if lb.index > 0 {
+
+		c.DrawText(bpmFont, strconv.Itoa(int(lb.index)),
+			pos+levelGridButtonSize/2,
+			pos+levelGridButtonSize/2-3,
+			-2, 0, true)
+	}
 }
 
 func newLevelButton(index int32) *levelButton {
@@ -138,6 +174,7 @@ func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
 		lg.cursorPos.Y*d + levelGridButtonSize/2
 
 	bmp := ap.GetAsset("levelButtons").(*core.Bitmap)
+	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
 	for y := int32(0); y < lg.height; y++ {
 
@@ -151,15 +188,12 @@ func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
 			}
 
 			c.MoveTo(left+x*d, top+y*d)
-			lg.buttons[y*lg.width+x].draw(c, bmp)
+			lg.buttons[y*lg.width+x].draw(c, bmp, bmpFont)
 		}
 	}
 
 	c.MoveTo(0, 0)
 
-	// TODO: Draw cursor
-	c.FillRect(lg.cursorRenderCenter.X-4, lg.cursorRenderCenter.Y-4, 8, 8,
-		core.NewRGB(255, 0, 0))
 }
 
 func newLevelGrid(width, height int32) *levelGrid {
@@ -178,6 +212,10 @@ func newLevelGrid(width, height int32) *levelGrid {
 
 		lg.buttons[i] = newLevelButton(int32(i))
 	}
+
+	// For testing
+	lg.buttons[1].beatState = 2
+	lg.buttons[2].beatState = 1
 
 	return lg
 }
