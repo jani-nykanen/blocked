@@ -149,6 +149,19 @@ func (tr *TransitionManager) SetCenter(x, y int32) {
 	tr.centerSpecified = true
 }
 
+// ResetCenter : Reset the center to the middle of the screen
+func (tr *TransitionManager) ResetCenter() {
+
+	tr.centerSpecified = false
+}
+
+// SetNewTime : Set a new time
+func (tr *TransitionManager) SetNewTime(time int32) {
+
+	tr.time = time
+	tr.timer = time
+}
+
 // Active : Getter for "active" property
 func (tr *TransitionManager) Active() bool {
 

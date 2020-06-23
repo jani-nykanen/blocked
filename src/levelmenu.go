@@ -55,6 +55,9 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 
 				if ret > 0 {
 
+					ev.Transition.SetNewTime(30)
+					ev.Transition.ResetCenter()
+
 					err := ev.ChangeScene(newGameScene())
 					if err != nil {
 
