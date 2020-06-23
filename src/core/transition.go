@@ -1,7 +1,5 @@
 package core
 
-import "math"
-
 // TransitionCallback : A callback for
 // transition events
 type TransitionCallback func(ev *Event)
@@ -21,13 +19,15 @@ const (
 // TransitionManager : Used for different kind of
 // transitions
 type TransitionManager struct {
-	timer  int32
-	time   int32
-	mode   TransitionMode
-	fadeIn bool
-	color  Color
-	active bool
-	cb     TransitionCallback
+	timer           int32
+	time            int32
+	mode            TransitionMode
+	fadeIn          bool
+	color           Color
+	active          bool
+	cb              TransitionCallback
+	center          Point
+	centerSpecified bool
 }
 
 // Update : Update the transition manager
@@ -75,7 +75,7 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 	}
 
 	var w, h int32
-	var radius int32
+	var radius, maxRadius int32
 
 	// TODO: Implement the rest
 	switch tr.mode {
@@ -94,9 +94,27 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 
 	case TransitionCircleOutside:
 
+		if !tr.centerSpecified {
+
+			tr.center.X = c.viewport.W / 2
+			tr.center.Y = c.viewport.H / 2
+
+			tr.centerSpecified = true
+		}
+
 		t = 1.0 - t
-		radius = RoundFloat32(t * float32(math.Hypot(float64(c.viewport.W/2), float64(c.viewport.H/2))))
-		c.FillCircleOutside(c.viewport.W/2, c.viewport.H/2, radius, tr.color)
+
+		// A lot of unnecessary computations happen here
+		// because I forgot what data types I needed, but I'm
+		// too lazy to implement better methods
+		maxRadius = MaxInt32InSlice([]int32{
+			HypotInt32(tr.center.X, tr.center.Y),
+			HypotInt32(c.Viewport().W-tr.center.X, tr.center.Y),
+			HypotInt32(c.Viewport().W-tr.center.X, c.Viewport().H-tr.center.Y),
+			HypotInt32(tr.center.X, c.Viewport().H-tr.center.Y),
+		})
+		radius = RoundFloat32(t * float32(maxRadius))
+		c.FillCircleOutside(tr.center.X, tr.center.Y, radius, tr.color)
 
 		break
 
@@ -119,6 +137,16 @@ func (tr *TransitionManager) Activate(fadeIn bool,
 	tr.timer = tr.time
 	tr.cb = cb
 	tr.color = color
+
+	tr.centerSpecified = false
+}
+
+// SetCenter : Set center position for specific transition modes
+func (tr *TransitionManager) SetCenter(x, y int32) {
+
+	tr.center = NewPoint(x, y)
+
+	tr.centerSpecified = true
 }
 
 // Active : Getter for "active" property
@@ -138,6 +166,8 @@ func NewTransitionManager() *TransitionManager {
 
 	tr.time = 60
 	tr.timer = 0
+
+	tr.centerSpecified = false
 
 	return tr
 }

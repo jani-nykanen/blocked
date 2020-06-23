@@ -3,7 +3,9 @@
 // (c) 2020 Jani Nykänen
 package core
 
-import "github.com/veandco/go-sdl2/sdl"
+import (
+	"github.com/veandco/go-sdl2/sdl"
+)
 
 // GameWindow : Contains a window and "everything
 // that happens inside it". Application logic happens here.
@@ -254,10 +256,10 @@ func (win *GameWindow) checkDefaultKeyShortcuts() {
 
 func (win *GameWindow) changeScene(newScene Scene) error {
 
-	oldScene := win.activeScene
+	ret := win.activeScene.Dispose()
 	win.activeScene = newScene
 
-	return win.activeScene.Activate(win.ev, oldScene.Dispose)
+	return win.activeScene.Activate(win.ev, ret)
 }
 
 func (win *GameWindow) terminate(err error) {

@@ -40,6 +40,21 @@ func MaxInt32(x, y int32) int32 {
 	return y
 }
 
+// MaxInt32InSlice : Return the maximal element in
+// a slice
+func MaxInt32InSlice(arr []int32) int32 {
+
+	max := arr[0]
+	for _, m := range arr {
+
+		if m > max {
+
+			max = m
+		}
+	}
+	return max
+}
+
 // MaxUInt32 : Maximum of two unsigned integers
 func MaxUInt32(x, y uint32) uint32 {
 
@@ -54,7 +69,14 @@ func MaxUInt32(x, y uint32) uint32 {
 // number
 func RoundFloat32(x float32) int32 {
 
-	return int32(math.Round(float64(x)))
+	return RoundFloat64(float64(x))
+}
+
+// RoundFloat64 : Round a 64-bit floating point
+// number
+func RoundFloat64(x float64) int32 {
+
+	return int32(math.Round(x))
 }
 
 // ClampFloat32 : "Clamps" the given number to the interval
@@ -70,4 +92,10 @@ func ClampFloat32(x float32, min float32, max float32) float32 {
 func ClampInt32(x int32, min int32, max int32) int32 {
 
 	return int32(MinInt32(max, MaxInt32(x, min)))
+}
+
+// HypotInt32 : Like math.Hypot, but works with integers
+func HypotInt32(x, y int32) int32 {
+
+	return RoundFloat64(math.Hypot(float64(x), float64(y)))
 }

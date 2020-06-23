@@ -78,7 +78,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = win.Launch(newGameScene())
+	err = win.Launch(newLevelMenuScene())
 	if err != nil {
 
 		fmt.Println(err)
