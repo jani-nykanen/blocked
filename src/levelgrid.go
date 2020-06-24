@@ -213,9 +213,5 @@ func newLevelGrid(width, height int32) *levelGrid {
 		lg.buttons[i] = newLevelButton(int32(i))
 	}
 
-	// For testing
-	lg.buttons[1].beatState = 2
-	lg.buttons[2].beatState = 1
-
 	return lg
 }

@@ -103,6 +103,7 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 		}
 
 		t = 1.0 - t
+		t *= t
 
 		// A lot of unnecessary computations happen here
 		// because I forgot what data types I needed, but I'm
