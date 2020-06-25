@@ -3,7 +3,7 @@
  <properties>
   <property name="difficulty" value="4"/>
   <property name="moves" value="17"/>
-  <property name="name" value="Test Stage"/>
+  <property name="name" value="Test Area"/>
  </properties>
  <tileset firstgid="1" source="../../dev/editor_tiles.tsx"/>
  <layer id="1" name="Laattataso 1" width="9" height="9">
