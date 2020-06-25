@@ -106,9 +106,12 @@ func (game *gameScene) reset(ev *core.Event) {
 	}
 	game.frameTransition.Activate(true, core.TransitionCircleOutside,
 		30, core.NewRGB(0, 0, 0), cb)
-	game.frameTransition.SetCenter(
-		game.objects.failurePoint.X,
-		game.objects.failurePoint.Y)
+	if game.failed {
+
+		game.frameTransition.SetCenter(
+			game.objects.failurePoint.X,
+			game.objects.failurePoint.Y)
+	}
 
 }
 
