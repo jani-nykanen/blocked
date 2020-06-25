@@ -122,9 +122,10 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 	}
 
 	var state int32
+	anyMoving := objm.isAnyMoving()
 	for _, b := range objm.blocks {
 
-		state = b.update(s, ev)
+		state = b.update(anyMoving, s, ev)
 
 		if state == blockRightHole {
 

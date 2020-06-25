@@ -35,7 +35,7 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 		p = param.(int32)
 
 		lm.grid.cursorPos.X = p % lm.grid.width
-		lm.grid.cursorPos.Y = p & lm.grid.height
+		lm.grid.cursorPos.Y = p / lm.grid.height
 	}
 
 	return nil

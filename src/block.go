@@ -13,16 +13,17 @@ const (
 )
 
 type block struct {
-	pos       core.Point
-	target    core.Point
-	dir       core.Point // Needed for "offscreen transition"
-	renderPos core.Point
-	id        int32
-	exist     bool
-	spr       *core.Sprite
-	moving    bool
-	moveTimer int32
-	jumping   bool
+	pos         core.Point
+	target      core.Point
+	dir         core.Point // Needed for "offscreen transition"
+	renderPos   core.Point
+	id          int32
+	exist       bool
+	spr         *core.Sprite
+	moving      bool
+	moveTimer   int32
+	jumping     bool
+	deactivated bool
 }
 
 func (b *block) handleControls(s *stage, ev *core.Event) bool {
@@ -106,7 +107,10 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 					b.moving = false
 					b.moveTimer = 0
 
-					s.updateSolidTile(b.pos.X, b.pos.Y, 0)
+					b.deactivated = false
+
+					s.updateSolidTile(b.pos.X, b.pos.Y, 2)
+
 					return blockRightHole
 				}
 				return blockWrongHole
@@ -171,9 +175,16 @@ func (b *block) computeRenderingPosition() {
 	}
 }
 
-func (b *block) update(s *stage, ev *core.Event) int32 {
+func (b *block) update(anyMoving bool, s *stage, ev *core.Event) int32 {
 
 	if !b.exist {
+
+		if !b.deactivated && !anyMoving {
+
+			s.updateSolidTile(b.pos.X, b.pos.Y, 0)
+			b.deactivated = true
+		}
+
 		return blockNoHole
 	}
 
@@ -285,6 +296,7 @@ func newBlock(x, y, id int32) *block {
 
 	b.moveTimer = 0
 	b.moving = false
+	b.deactivated = true
 
 	return b
 }
