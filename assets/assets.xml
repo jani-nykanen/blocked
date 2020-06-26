@@ -11,4 +11,5 @@
     <bitmap src="cross.png" name="cross" />
     <bitmap src="levelmenu_background.png" name="levelmenuBackground" />
     <bitmap src="levelbuttons.png" name="levelButtons" />
+    <bitmap src="stageclear.png" name="stageClear" />
 </assets>

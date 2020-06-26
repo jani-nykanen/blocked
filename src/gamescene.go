@@ -230,7 +230,7 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 	// Might need to come up with a better name to
 	// the hardest difficulty...
 	difficultyNames := []string{
-		"Normal", "Hard", "Expert", "Master"}
+		"Easy", "Average", "Hard", "Expert"}
 
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 

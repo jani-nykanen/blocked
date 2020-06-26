@@ -194,6 +194,11 @@ func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	c.MoveTo(0, 0)
 
+	// Draw cursor
+	c.DrawBitmapRegion(bmp, 96, 0, 24, 24,
+		lg.cursorRenderCenter.X+8,
+		lg.cursorRenderCenter.Y+4, core.FlipNone)
+
 }
 
 func newLevelGrid(width, height int32) *levelGrid {
@@ -212,6 +217,8 @@ func newLevelGrid(width, height int32) *levelGrid {
 
 		lg.buttons[i] = newLevelButton(int32(i))
 	}
+
+	lg.cursorPos = core.NewPoint(1, 0)
 
 	return lg
 }
