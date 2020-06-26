@@ -48,7 +48,7 @@ func (s *settings) draw(c *core.Canvas, ap *core.AssetPack) {
 	c.FillRect(0, 0, c.Viewport().W, c.Viewport().H,
 		core.NewRGBA(0, 0, 0, 85))
 
-	s.options.draw(c, ap)
+	s.options.draw(c, ap, true)
 }
 
 func newSettings() *settings {

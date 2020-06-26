@@ -7,18 +7,26 @@ import (
 )
 
 type gameScene struct {
-	gameStage       *stage
-	objects         *objectManager
-	cloudPos        int32
-	failureTimer    int32
-	failed          bool
-	cogSprite       *core.Sprite
-	frameTransition *core.TransitionManager
-	pauseMenu       *menu
-	settingsScreen  *settings
+	gameStage        *stage
+	objects          *objectManager
+	cloudPos         int32
+	failureTimer     int32
+	failed           bool
+	cleared          bool
+	cogSprite        *core.Sprite
+	frameTransition  *core.TransitionManager
+	pauseMenu        *menu
+	clearMenu        *menu
+	settingsScreen   *settings
+	bestSuccessState int32
 }
 
-func (game *gameScene) createPauseMenu(ev *core.Event) {
+type levelResult struct {
+	currentStage int32
+	successState int32
+}
+
+func (game *gameScene) createPauseMenu() {
 
 	buttons := []menuButton{
 
@@ -50,6 +58,35 @@ func (game *gameScene) createPauseMenu(ev *core.Event) {
 	game.pauseMenu = newMenu(buttons)
 }
 
+func (game *gameScene) createClearMenu() {
+
+	buttons := []menuButton{
+
+		newMenuButton("Play Again", func(ev *core.Event) {
+			game.reset(ev)
+			game.pauseMenu.deactivate()
+		}),
+		/*
+			newMenuButton("Next stage", func(ev *core.Event) {
+				// ...
+			}),
+		*/
+		newMenuButton("Stage Menu", func(ev *core.Event) {
+
+			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
+				core.NewRGB(0, 0, 0), func(ev *core.Event) {
+					err := ev.ChangeScene(newLevelMenuScene())
+					if err != nil {
+
+						ev.Terminate(err)
+					}
+				})
+		}),
+	}
+
+	game.clearMenu = newMenu(buttons)
+}
+
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 	var err error
@@ -71,13 +108,16 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.cloudPos = 0
 	game.failureTimer = 0
 	game.failed = false
+	game.cleared = false
+	game.bestSuccessState = 0
 
 	game.cogSprite = core.NewSprite(48, 48)
 
 	game.frameTransition = core.NewTransitionManager()
 
 	game.settingsScreen = newSettings()
-	game.createPauseMenu(ev)
+	game.createPauseMenu()
+	game.createClearMenu()
 
 	return err
 }
@@ -88,7 +128,10 @@ func (game *gameScene) resetEvent(ev *core.Event) {
 	game.objects.clear()
 	game.gameStage.parseObjects(game.objects)
 
+	game.clearMenu.deactivate()
+
 	game.failed = false
+	game.cleared = false
 	game.failureTimer = 0
 }
 
@@ -140,24 +183,32 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		return
 	}
 
-	// Pause menu
-	if game.pauseMenu.active {
+	if !game.cleared {
 
-		game.pauseMenu.update(ev)
-		return
+		// Pause menu
+		if game.pauseMenu.active {
 
-	} else if !game.failed &&
-		ev.Input.GetActionState("start") == core.StatePressed {
+			game.pauseMenu.update(ev)
+			return
 
-		game.pauseMenu.activate(0)
-		return
+		} else if !game.failed &&
+			ev.Input.GetActionState("start") == core.StatePressed {
+
+			game.pauseMenu.activate(0)
+			return
+		}
+
+	} else {
+
+		game.clearMenu.update(ev)
 	}
 
 	// The rest
 	game.gameStage.update(ev)
 	if !game.failed {
 
-		if ev.Input.GetActionState("reset") == core.StatePressed {
+		if !game.cleared &&
+			ev.Input.GetActionState("reset") == core.StatePressed {
 
 			game.reset(ev)
 			return
@@ -169,6 +220,17 @@ func (game *gameScene) Refresh(ev *core.Event) {
 			game.failureTimer = failTime
 
 			game.gameStage.shake(failTime)
+		}
+		game.cleared = game.objects.cleared
+		if game.cleared && !game.clearMenu.active {
+
+			game.clearMenu.activate(0)
+
+			game.bestSuccessState = core.MaxInt32(game.bestSuccessState, 1)
+			if game.objects.moveCount <= game.gameStage.bonusMoveLimit {
+
+				game.bestSuccessState = 2
+			}
 		}
 
 	} else {
@@ -299,6 +361,33 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 	}
 }
 
+func (game *gameScene) drawSuccess(c *core.Canvas, ap *core.AssetPack) {
+
+	const headerOff int32 = 16
+	const startOff int32 = headerOff + 24
+
+	bmp := ap.GetAsset("stageClear").(*core.Bitmap)
+
+	c.FillRect(0, 0, c.Viewport().W, c.Viewport().H,
+		core.NewRGBA(0, 0, 0, 85))
+
+	c.DrawBitmapRegion(bmp, 0, 0, 128, 16,
+		c.Viewport().W/2-64, c.Viewport().H/2-headerOff,
+		core.FlipNone)
+
+	sx := int32(0)
+	if game.objects.moveCount <= game.gameStage.bonusMoveLimit {
+
+		sx = 24
+	}
+	c.DrawBitmapRegion(bmp, sx, 16, 24, 24,
+		c.Viewport().W/2-12, c.Viewport().H/2-startOff,
+		core.FlipNone)
+
+	c.MoveTo(0, 32)
+	game.clearMenu.draw(c, ap, false)
+}
+
 func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	c.MoveTo(0, 0)
@@ -331,6 +420,11 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.objects.draw(c, ap)
 	game.gameStage.postDraw(c, ap)
 
+	if game.cleared {
+
+		game.drawSuccess(c, ap)
+	}
+
 	game.frameTransition.Draw(c)
 
 	c.ResetViewport()
@@ -345,14 +439,18 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	game.DrawHUD(c, ap)
 
-	game.pauseMenu.draw(c, ap)
+	game.pauseMenu.draw(c, ap, true)
+
 }
 
 func (game *gameScene) Dispose() interface{} {
 
 	game.gameStage.dispose()
 
-	return game.gameStage.id
+	ret := levelResult{currentStage: game.gameStage.id,
+		successState: game.bestSuccessState}
+
+	return ret
 }
 
 func newGameScene() core.Scene {

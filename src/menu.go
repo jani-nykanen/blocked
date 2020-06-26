@@ -77,7 +77,7 @@ func (m *menu) update(ev *core.Event) {
 		math.Mod(float64(m.cursorWave+waveTime*float32(ev.Step())), math.Pi*2))
 }
 
-func (m *menu) draw(c *core.Canvas, ap *core.AssetPack) {
+func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 
 	const buttonOffset int32 = 10
 	const shadowOffset = 4
@@ -105,17 +105,19 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack) {
 
 	outlines := int32(len(colors))
 
-	// Shadow
-	c.FillRect(left-(outlines-1)+shadowOffset,
-		top-(outlines-1)+shadowOffset,
-		width+(outlines-1)*2, height+(outlines-1)*2,
-		core.NewRGBA(0, 0, 0, 85))
+	if drawBox {
+		// Shadow
+		c.FillRect(left-(outlines-1)+shadowOffset,
+			top-(outlines-1)+shadowOffset,
+			width+(outlines-1)*2, height+(outlines-1)*2,
+			core.NewRGBA(0, 0, 0, 85))
 
-	// Draw outlines
-	for i := outlines - 1; i >= 0; i-- {
+		// Draw outlines (and box)
+		for i := outlines - 1; i >= 0; i-- {
 
-		c.FillRect(left-i, top-i,
-			width+i*2, height+i*2, colors[outlines-1-i])
+			c.FillRect(left-i, top-i,
+				width+i*2, height+i*2, colors[outlines-1-i])
+		}
 	}
 
 	// Draw buttons

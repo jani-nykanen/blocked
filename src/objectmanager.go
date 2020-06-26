@@ -13,6 +13,7 @@ type objectManager struct {
 	failurePoint core.Point
 	blockCount   int32
 	moveCount    int32
+	cleared      bool
 }
 
 func (objm *objectManager) addBlock(x, y, id int32) {
@@ -97,7 +98,7 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 	// All these loops are required to make it
 	// possible to move several blocks at the
 	// same time "consistently"
-	if !objm.isAnyMoving() {
+	if !objm.cleared && !objm.isAnyMoving() {
 
 		for {
 
@@ -158,6 +159,8 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 		b.safeCheck(s)
 	}
 
+	objm.cleared = objm.blockCount <= 0
+
 	return false
 }
 
@@ -209,6 +212,8 @@ func newObjectManager() *objectManager {
 
 	objm.blockCount = 0
 	objm.moveCount = 0
+
+	objm.cleared = false
 
 	return objm
 }

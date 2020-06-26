@@ -29,13 +29,15 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 			30, core.NewRGB(0, 0, 0), nil)
 	}
 
-	var p int32
+	var p levelResult
 	if param != nil {
 
-		p = param.(int32)
+		p = param.(levelResult)
 
-		lm.grid.cursorPos.X = p % lm.grid.width
-		lm.grid.cursorPos.Y = p / lm.grid.height
+		lm.grid.cursorPos.X = p.currentStage % lm.grid.width
+		lm.grid.cursorPos.Y = p.currentStage / lm.grid.height
+
+		lm.grid.changeButtonBeatState(p.currentStage, p.successState)
 	}
 
 	return nil
