@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 func main() {
@@ -13,29 +12,11 @@ func main() {
 	var err error
 	var win *core.GameWindow
 
-	err = sdl.Init(sdl.INIT_EVERYTHING)
+	err = core.InitSystem()
 	if err != nil {
 
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	// Initialize joystick
-	err = sdl.InitSubSystem(sdl.INIT_JOYSTICK)
-	if err != nil {
-
-		fmt.Printf("Error initializing joystick: %s\n", err)
-
-	} else {
-
-		if sdl.JoystickOpen(0) == nil {
-
-			fmt.Println("No joystick or gamepad found.")
-
-		} else {
-
-			fmt.Println("Joystick at index 0 activated.")
-		}
 	}
 
 	// Fetch configuration data from a file

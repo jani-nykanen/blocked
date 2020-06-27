@@ -37,7 +37,7 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 		lm.cinfo = param.(*completionInfo)
 
 		lm.grid.cursorPos.X = lm.cinfo.currentStage % lm.grid.width
-		lm.grid.cursorPos.Y = lm.cinfo.currentStage / lm.grid.height
+		lm.grid.cursorPos.Y = lm.cinfo.currentStage / lm.grid.width
 
 		lm.grid.updateButtonStates(lm.cinfo)
 
@@ -61,6 +61,11 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 
 	if ev.Transition.Active() {
 
+		// For weird design reasons this has to happen here, too,
+		// in the case Escape is pressed...
+		ev.Transition.SetCenter(lm.grid.cursorRenderCenter.X+4,
+			lm.grid.cursorRenderCenter.Y+4)
+
 		if lm.levelIndex >= 0 {
 
 			lm.grid.updateFlickering(ev)
@@ -71,7 +76,19 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 
 	lm.bgPos = (lm.bgPos + bgSpeed*ev.Step()) % (32 * levelMenuSpeedDivisor)
 
-	ret := lm.grid.update(ev)
+	var ret int32
+	if ev.Input.GetActionState("back") == core.StatePressed {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("cancel").(*core.Sample), 40)
+
+		lm.grid.forceActivateButton(0, ev)
+		ret = 0
+
+	} else {
+
+		ret = lm.grid.update(ev)
+	}
+
 	if ret > -1 {
 
 		lm.levelIndex = ret

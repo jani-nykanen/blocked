@@ -12,10 +12,17 @@ import (
 type assetsXML struct {
 	XMLName    xml.Name    `xml:"assets"`
 	BitmapPath string      `xml:"bitmap_path,attr"`
+	SamplePath string      `xml:"sample_path,attr"`
 	Bitmaps    []bitmapXML `xml:"bitmap"`
+	Samples    []sampleXML `xml:"sample"`
 }
 type bitmapXML struct {
 	XMLName xml.Name `xml:"bitmap"`
+	Path    string   `xml:"src,attr"`
+	Name    string   `xml:"name,attr"`
+}
+type sampleXML struct {
+	XMLName xml.Name `xml:"sample"`
 	Path    string   `xml:"src,attr"`
 	Name    string   `xml:"name,attr"`
 }
@@ -51,6 +58,18 @@ func parseAssetFile(path string, renderer *sdl.Renderer) (*AssetPack, error) {
 		fullPath = assets.BitmapPath + b.Path
 
 		err = ap.AddBitmap(b.Name, fullPath)
+		if err != nil {
+
+			return nil, err
+		}
+	}
+
+	// Load samples
+	for _, s := range assets.Samples {
+
+		fullPath = assets.SamplePath + s.Path
+
+		err = ap.AddSample(s.Name, fullPath)
 		if err != nil {
 
 			return nil, err

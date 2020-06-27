@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<assets bitmap_path="assets/bitmaps/">
+<assets bitmap_path="assets/bitmaps/" sample_path="assets/audio/">
+
     <bitmap src="font.png" name="font" />
     <bitmap src="tileset.png" name="tileset" />
     <bitmap src="frame.png" name="frame" />
@@ -12,4 +13,10 @@
     <bitmap src="levelmenu_background.png" name="levelmenuBackground" />
     <bitmap src="levelbuttons.png" name="levelButtons" />
     <bitmap src="stageclear.png" name="stageClear" />
+
+    <sample src="accept.wav" name="accept" />
+    <sample src="cancel.wav" name="cancel" />
+    <sample src="next.wav" name="next" />
+    <sample src="pause.wav" name="pause" />
+
 </assets>

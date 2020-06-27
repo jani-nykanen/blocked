@@ -23,6 +23,7 @@ type GameWindow struct {
 	assetPath   string
 	bbuilder    *BitmapBuilder
 	tr          *TransitionManager
+	audio       *AudioPlayer
 	ev          *Event
 	activeScene Scene
 	err         error
@@ -373,10 +374,11 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 	}
 
 	window.tr = NewTransitionManager()
+	window.audio = NewAudioPlayer(100, 100)
 
 	window.bbuilder = newBitmapBuilder(window.renderer)
 	window.ev = newEvent(window, 0, window.input, window.assets,
-		window.bbuilder, window.tr)
+		window.bbuilder, window.tr, window.audio)
 
 	window.err = nil
 

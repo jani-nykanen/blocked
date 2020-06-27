@@ -24,6 +24,7 @@ type menu struct {
 	active        bool
 	maxNameLength int32
 	cursorWave    float32
+	canCancel     bool
 }
 
 func (m *menu) activate(cursorPos int32) {
@@ -52,6 +53,8 @@ func (m *menu) update(ev *core.Event) {
 		return
 	}
 
+	oldPos := m.cursorPos
+
 	if ev.Input.GetActionState("up") == core.StatePressed {
 
 		m.cursorPos--
@@ -61,15 +64,28 @@ func (m *menu) update(ev *core.Event) {
 		m.cursorPos++
 	}
 
+	if oldPos != m.cursorPos {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("next").(*core.Sample), 40)
+	}
+
 	m.cursorPos = core.NegMod(m.cursorPos, int32(len(m.buttons)))
 
 	if ev.Input.GetActionState("start") == core.StatePressed ||
 		ev.Input.GetActionState("select") == core.StatePressed {
 
+		ev.Audio.PlaySample(ev.Assets.GetAsset("accept").(*core.Sample), 40)
 		if m.buttons[m.cursorPos].cb != nil {
 
 			m.buttons[m.cursorPos].cb(ev)
 		}
+	}
+
+	if m.canCancel &&
+		ev.Input.GetActionState("back") == core.StatePressed {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("cancel").(*core.Sample), 40)
+		m.deactivate()
 	}
 
 	// Ugh
@@ -146,7 +162,7 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 		core.FlipNone)
 }
 
-func newMenu(buttons []menuButton) *menu {
+func newMenu(buttons []menuButton, canCancel bool) *menu {
 
 	m := new(menu)
 	m.buttons = make([]menuButton, 0)
@@ -164,6 +180,7 @@ func newMenu(buttons []menuButton) *menu {
 	}
 
 	m.active = false
+	m.canCancel = canCancel
 
 	return m
 }

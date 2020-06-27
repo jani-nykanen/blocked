@@ -74,7 +74,7 @@ func newSettings() *settings {
 		}),
 	}
 
-	s.options = newMenu(buttons)
+	s.options = newMenu(buttons, true)
 
 	return s
 }

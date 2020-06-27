@@ -25,6 +25,10 @@ func (ap *AssetPack) dispose() {
 			a.data.(*Bitmap).Dispose()
 			break
 
+		case *Sample:
+			a.data.(*Sample).dispose()
+			break
+
 		default:
 			break
 
@@ -58,6 +62,28 @@ func (ap *AssetPack) AddBitmap(name string, path string) error {
 
 	ass.name = name
 	ass.data = bmp
+
+	ap.assets = append(ap.assets, ass)
+
+	return err
+}
+
+// AddSample : Loads and adds a sample to the buffer
+func (ap *AssetPack) AddSample(name string, path string) error {
+
+	var err error
+	var s *Sample
+	// TODO: Better name for this, please
+	var ass asset
+
+	s, err = loadSample(path)
+	if err != nil {
+
+		return err
+	}
+
+	ass.name = name
+	ass.data = s
 
 	ap.assets = append(ap.assets, ass)
 

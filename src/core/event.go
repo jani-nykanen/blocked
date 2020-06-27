@@ -8,12 +8,13 @@ type Event struct {
 	Input      *InputManager
 	Assets     *AssetPack
 	Transition *TransitionManager
+	Audio      *AudioPlayer
 	bmpBuilder *BitmapBuilder
 }
 
 func newEvent(gw *GameWindow, frameSkip int32,
 	input *InputManager, assets *AssetPack, bbuilder *BitmapBuilder,
-	tr *TransitionManager) *Event {
+	tr *TransitionManager, audio *AudioPlayer) *Event {
 
 	ev := new(Event)
 
@@ -23,6 +24,7 @@ func newEvent(gw *GameWindow, frameSkip int32,
 	ev.bmpBuilder = bbuilder
 	ev.gw = gw
 	ev.Transition = tr
+	ev.Audio = audio
 
 	return ev
 }

@@ -51,7 +51,7 @@ func (game *gameScene) createPauseMenu() {
 		}),
 	}
 
-	game.pauseMenu = newMenu(buttons)
+	game.pauseMenu = newMenu(buttons, true)
 }
 
 func (game *gameScene) createClearMenu() {
@@ -86,7 +86,7 @@ func (game *gameScene) createClearMenu() {
 		}),
 	}
 
-	game.clearMenu = newMenu(buttons)
+	game.clearMenu = newMenu(buttons, false)
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
@@ -213,6 +213,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		} else if !game.failed &&
 			ev.Input.GetActionState("start") == core.StatePressed {
 
+			ev.Audio.PlaySample(ev.Assets.GetAsset("pause").(*core.Sample), 30)
 			game.pauseMenu.activate(0)
 			return
 		}

@@ -45,6 +45,8 @@ func (lb *levelButton) update(active bool, ev *core.Event) bool {
 		if ev.Input.GetActionState("start") == core.StatePressed ||
 			ev.Input.GetActionState("select") == core.StatePressed {
 
+			ev.Audio.PlaySample(ev.Assets.GetAsset("accept").(*core.Sample), 40)
+
 			return true
 		}
 	}
@@ -124,6 +126,8 @@ func (lg *levelGrid) updateFlickering(ev *core.Event) {
 
 func (lg *levelGrid) update(ev *core.Event) int32 {
 
+	oldPos := lg.cursorPos
+
 	if ev.Input.GetActionState("left") == core.StatePressed {
 
 		lg.cursorPos.X--
@@ -141,6 +145,11 @@ func (lg *levelGrid) update(ev *core.Event) int32 {
 		lg.cursorPos.Y++
 	}
 
+	if oldPos.X != lg.cursorPos.X || oldPos.Y != lg.cursorPos.Y {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("next").(*core.Sample), 40)
+	}
+
 	lg.cursorPos.X = core.NegMod(lg.cursorPos.X, lg.width)
 	lg.cursorPos.Y = core.NegMod(lg.cursorPos.Y, lg.height)
 
@@ -155,6 +164,19 @@ func (lg *levelGrid) update(ev *core.Event) int32 {
 	}
 
 	return -1
+}
+
+func (lg *levelGrid) forceActivateButton(index int32, ev *core.Event) {
+
+	if index < 0 || index > int32(len(lg.buttons)) {
+
+		return
+	}
+
+	lg.cursorPos.X = index % lg.width
+	lg.cursorPos.Y = index / lg.width
+
+	lg.buttons[index].active = true
 }
 
 func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
