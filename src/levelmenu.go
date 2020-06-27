@@ -123,16 +123,31 @@ func (lm *levelMenu) Redraw(c *core.Canvas, ap *core.AssetPack) {
 		0, 0, true)
 
 	// Bottom stuff
+	var info stageInfoEntry
+	var difString string
 	if lm.grid.selectedIndex > 0 {
 
+		// Stage number
 		c.DrawText(font, "STAGE "+strconv.Itoa(int(lm.grid.selectedIndex)),
 			6, c.Viewport().H-12,
 			0, 0, false)
 
-		// Temporary
-		c.DrawText(font, "(Additional info...)",
-			c.Viewport().W/3*2, c.Viewport().H-12,
-			-1, 0, true)
+		info = lm.cinfo.sinfo.getStageInfo(lm.grid.selectedIndex - 1)
+
+		// Name
+		c.DrawText(font, info.name,
+			c.Viewport().W/2, c.Viewport().H-12,
+			0, 0, true)
+
+		// Difficulty
+		difString = string(rune(5+info.difficulty)) +
+			" " +
+			getDifficultyName(info.difficulty-1)
+
+		c.DrawText(font, difString,
+			c.Viewport().W-int32(len(difString))*8, c.Viewport().H-12,
+			-1, 0, false)
+
 	}
 }
 

@@ -13,6 +13,9 @@ const (
 type completionInfo struct {
 	states       []int32
 	currentStage int32
+	// This should go elsewhere, but since this data
+	// should be loaded only once, let's put it here...
+	sinfo *stageInfoContainer
 }
 
 func (cinfo *completionInfo) updateState(index int32, state int32) {
@@ -97,5 +100,8 @@ func newCompletionInfo(count int32) *completionInfo {
 
 	cinfo.currentStage = 1
 	cinfo.states = make([]int32, count)
+
+	cinfo.sinfo = parseStageInfo("assets/maps")
+
 	return cinfo
 }

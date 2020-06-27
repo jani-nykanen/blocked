@@ -312,8 +312,6 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 	color := []uint8{0, 255}
 	// Might need to come up with a better name to
 	// the hardest difficulty...
-	difficultyNames := []string{
-		"Easy", "Average", "Hard", "Expert"}
 
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
@@ -329,7 +327,7 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 	diff := core.ClampInt32(game.gameStage.difficulty, 1, 4)
 	difficultyStr := string(rune(5+diff)) +
 		" " +
-		difficultyNames[diff-1]
+		getDifficultyName(diff-1)
 	diffXOff := int32(len(difficultyStr)) * 7
 
 	for i := int32(0); i < 2; i++ {
