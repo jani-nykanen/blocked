@@ -1,29 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
 type gameScene struct {
-	gameStage        *stage
-	objects          *objectManager
-	cloudPos         int32
-	failureTimer     int32
-	failed           bool
-	cleared          bool
-	cogSprite        *core.Sprite
-	frameTransition  *core.TransitionManager
-	pauseMenu        *menu
-	clearMenu        *menu
-	settingsScreen   *settings
-	bestSuccessState int32
-}
-
-type levelResult struct {
-	currentStage int32
-	successState int32
+	gameStage       *stage
+	objects         *objectManager
+	cloudPos        int32
+	failureTimer    int32
+	failed          bool
+	cleared         bool
+	cogSprite       *core.Sprite
+	frameTransition *core.TransitionManager
+	pauseMenu       *menu
+	clearMenu       *menu
+	settingsScreen  *settings
+	cinfo           *completionInfo
 }
 
 func (game *gameScene) createPauseMenu() {
@@ -66,11 +62,17 @@ func (game *gameScene) createClearMenu() {
 			game.reset(ev)
 			game.pauseMenu.deactivate()
 		}),
-		/*
-			newMenuButton("Next stage", func(ev *core.Event) {
-				// ...
-			}),
-		*/
+
+		newMenuButton("Next Stage", func(ev *core.Event) {
+
+			game.frameTransition.Activate(true, core.TransitionCircleOutside,
+				30, core.NewRGB(0, 0, 0),
+				func(ev *core.Event) {
+
+					game.nextStage(ev)
+				})
+		}),
+
 		newMenuButton("Stage Menu", func(ev *core.Event) {
 
 			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
@@ -93,7 +95,8 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	index := int32(1)
 	if param != nil {
 
-		index = param.(int32)
+		game.cinfo = param.(*completionInfo)
+		index = game.cinfo.currentStage
 	}
 
 	game.gameStage, err = newStage(index, ev)
@@ -109,8 +112,6 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	game.failureTimer = 0
 	game.failed = false
 	game.cleared = false
-	game.bestSuccessState = 0
-
 	game.cogSprite = core.NewSprite(48, 48)
 
 	game.frameTransition = core.NewTransitionManager()
@@ -122,9 +123,27 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 	return err
 }
 
-func (game *gameScene) resetEvent(ev *core.Event) {
+func (game *gameScene) nextStage(ev *core.Event) {
 
-	game.gameStage.reset()
+	game.cinfo.currentStage = (game.cinfo.currentStage % game.cinfo.levelCount()) + 1
+
+	var err error
+	game.gameStage, err = newStage(game.cinfo.currentStage, ev)
+	if err != nil {
+
+		ev.Terminate(err)
+		return
+	}
+
+	game.resetEvent(false)
+}
+
+func (game *gameScene) resetEvent(resetStage bool) {
+
+	if resetStage {
+
+		game.gameStage.reset()
+	}
 	game.objects.clear()
 	game.gameStage.parseObjects(game.objects)
 
@@ -142,13 +161,13 @@ func (game *gameScene) updateBackground(step int32) {
 
 func (game *gameScene) reset(ev *core.Event) {
 
-	cb := func(ev *core.Event) {
-		game.resetEvent(ev)
-
-		game.frameTransition.ResetCenter()
-	}
 	game.frameTransition.Activate(true, core.TransitionCircleOutside,
-		30, core.NewRGB(0, 0, 0), cb)
+		30, core.NewRGB(0, 0, 0),
+		func(ev *core.Event) {
+
+			game.resetEvent(true)
+			game.frameTransition.ResetCenter()
+		})
 	if game.failed {
 
 		game.frameTransition.SetCenter(
@@ -204,6 +223,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 	}
 
 	// The rest
+	var state int32
 	game.gameStage.update(ev)
 	if !game.failed {
 
@@ -226,11 +246,12 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 			game.clearMenu.activate(0)
 
-			game.bestSuccessState = core.MaxInt32(game.bestSuccessState, 1)
+			state = 1
 			if game.objects.moveCount <= game.gameStage.bonusMoveLimit {
 
-				game.bestSuccessState = 2
+				state = 2
 			}
+			game.cinfo.updateState(game.gameStage.id, state)
 		}
 
 	} else {
@@ -447,10 +468,14 @@ func (game *gameScene) Dispose() interface{} {
 
 	game.gameStage.dispose()
 
-	ret := levelResult{currentStage: game.gameStage.id,
-		successState: game.bestSuccessState}
+	err := game.cinfo.saveToFile(defaultSaveFilePath)
+	if err != nil {
 
-	return ret
+		fmt.Printf("Error writing the save file: %s\n", err.Error())
+		return nil
+	}
+
+	return game.cinfo
 }
 
 func newGameScene() core.Scene {

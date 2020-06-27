@@ -201,15 +201,11 @@ func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
 
 }
 
-func (lg *levelGrid) changeButtonBeatState(id int32, state int32) {
+func (lg *levelGrid) updateButtonStates(cinfo *completionInfo) {
 
-	if state <= 0 || state >= lg.width*lg.height {
-		return
-	}
+	for i := int32(1); i < core.MinInt32(cinfo.levelCount(), lg.width*lg.height); i++ {
 
-	if lg.buttons[id].beatState < state {
-
-		lg.buttons[id].beatState = state
+		lg.buttons[i].beatState = cinfo.getState(i)
 	}
 }
 

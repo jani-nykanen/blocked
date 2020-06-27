@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
@@ -13,6 +14,7 @@ const (
 type levelMenu struct {
 	bgPos      int32
 	grid       *levelGrid
+	cinfo      *completionInfo
 	levelIndex int32
 }
 
@@ -29,15 +31,25 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 			30, core.NewRGB(0, 0, 0), nil)
 	}
 
-	var p levelResult
+	var err error
 	if param != nil {
 
-		p = param.(levelResult)
+		lm.cinfo = param.(*completionInfo)
 
-		lm.grid.cursorPos.X = p.currentStage % lm.grid.width
-		lm.grid.cursorPos.Y = p.currentStage / lm.grid.height
+		lm.grid.cursorPos.X = lm.cinfo.currentStage % lm.grid.width
+		lm.grid.cursorPos.Y = lm.cinfo.currentStage / lm.grid.height
 
-		lm.grid.changeButtonBeatState(p.currentStage, p.successState)
+		lm.grid.updateButtonStates(lm.cinfo)
+
+	} else {
+
+		lm.cinfo = newCompletionInfo(lm.grid.width*lm.grid.height - 1)
+		err = lm.cinfo.readFromFile(defaultSaveFilePath)
+		if err != nil {
+
+			fmt.Printf("Error reading the save file: %s\n", err.Error())
+		}
+		lm.grid.updateButtonStates(lm.cinfo)
 	}
 
 	return nil
@@ -126,7 +138,20 @@ func (lm *levelMenu) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 func (lm *levelMenu) Dispose() interface{} {
 
-	return lm.levelIndex
+	lm.cinfo.currentStage = lm.levelIndex
+	/*
+		var err error
+		if lm.levelIndex == 0 {
+
+			err = lm.cinfo.saveToFile(defaultSaveFilePath)
+			if err != nil {
+
+				fmt.Printf("Error writing the save file: %s\n", err.Error())
+				return nil
+			}
+		}
+	*/
+	return lm.cinfo
 }
 
 func newLevelMenuScene() core.Scene {

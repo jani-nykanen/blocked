@@ -6,3 +6,4 @@
 ./tools/obj2bin
 !.gitignore
 !makefile
+save.dat
