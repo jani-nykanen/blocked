@@ -245,7 +245,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		if !game.cleared &&
 			ev.Input.GetActionState("reset") == core.StatePressed {
 
-			ev.Audio.PlaySample(ev.Assets.GetAsset("restart").(*core.Sample), 30)
+			ev.Audio.PlaySample(ev.Assets.GetAsset("restart").(*core.Sample), 40)
 
 			game.reset(ev)
 			return

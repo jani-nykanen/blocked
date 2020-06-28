@@ -25,6 +25,7 @@ type block struct {
 	jumping     bool
 	deactivated bool
 	playDestroy bool
+	playHit     bool
 }
 
 func (b *block) handleControls(s *stage, ev *core.Event) bool {
@@ -55,7 +56,7 @@ func (b *block) handleControls(s *stage, ev *core.Event) bool {
 
 	if dx != 0 || dy != 0 {
 
-		b.moveTo(dx, dy, s)
+		b.moveTo(dx, dy, s, false)
 
 		return b.moving
 	}
@@ -63,9 +64,15 @@ func (b *block) handleControls(s *stage, ev *core.Event) bool {
 	return false
 }
 
-func (b *block) moveTo(dx, dy int32, s *stage) {
+func (b *block) moveTo(dx, dy int32, s *stage, wasMoving bool) {
 
 	if b.moving || s.getSolid(b.pos.X+dx, b.pos.Y+dy) != 0 {
+
+		if wasMoving {
+
+			b.playHit = true
+		}
+
 		return
 	}
 
@@ -127,15 +134,12 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 
 		// Keep moving to the same direction, if possible
 		b.moving = false
-		b.moveTo(b.dir.X, b.dir.Y, s)
+		b.moveTo(b.dir.X, b.dir.Y, s, true)
 
 		if !b.moving {
 
 			b.moveTimer = 0
 			s.updateSolidTile(b.pos.X, b.pos.Y, 2)
-
-			ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
-				45)
 		}
 	}
 
@@ -189,6 +193,7 @@ func (b *block) computeRenderingPosition() {
 func (b *block) update(anyMoving bool, s *stage, ev *core.Event) int32 {
 
 	b.playDestroy = false
+	b.playHit = false
 
 	if !b.exist {
 
@@ -310,6 +315,9 @@ func newBlock(x, y, id int32) *block {
 	b.moveTimer = 0
 	b.moving = false
 	b.deactivated = true
+
+	b.playDestroy = false
+	b.playHit = false
 
 	return b
 }

@@ -133,17 +133,15 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 				40)
 		}
 	*/
-	destroyPlayed := false
+	playDestroy := false
+	playHit := false
 	for _, b := range objm.blocks {
 
 		// This is required to make sure the "destroy" sound
 		// won't cut too early
-		if !destroyPlayed && b.playDestroy {
+		if b.playDestroy {
 
-			ev.Audio.PlaySample(ev.Assets.GetAsset("destroy").(*core.Sample),
-				40)
-
-			destroyPlayed = true
+			playDestroy = true
 		}
 
 		state = b.update(anyMoving, s, ev)
@@ -163,6 +161,24 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 			return true
 		}
+
+		if b.playHit {
+
+			playHit = true
+		}
+	}
+
+	if playHit {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
+			45)
+
+	}
+
+	if playDestroy {
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("destroy").(*core.Sample),
+			40)
 	}
 
 	for _, f := range objm.fragments {
