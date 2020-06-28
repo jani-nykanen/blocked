@@ -29,6 +29,8 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 
 		ev.Transition.Activate(false, core.TransitionCircleOutside,
 			30, core.NewRGB(0, 0, 0), nil)
+
+		ev.Transition.ResetCenter()
 	}
 
 	var err error
