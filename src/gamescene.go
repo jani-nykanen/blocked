@@ -7,6 +7,10 @@ import (
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
+const (
+	gameClearTime int32 = 60
+)
+
 type gameScene struct {
 	gameStage       *stage
 	objects         *objectManager
@@ -14,6 +18,7 @@ type gameScene struct {
 	failureTimer    int32
 	failed          bool
 	cleared         bool
+	clearTimer      int32
 	cogSprite       *core.Sprite
 	frameTransition *core.TransitionManager
 	pauseMenu       *menu
@@ -180,6 +185,7 @@ func (game *gameScene) reset(ev *core.Event) {
 func (game *gameScene) Refresh(ev *core.Event) {
 
 	const failTime int32 = 60
+	const clearTimerSpeed int32 = 2
 
 	if ev.Transition.Active() {
 		return
@@ -221,7 +227,14 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 	} else {
 
-		game.clearMenu.update(ev)
+		if game.clearTimer <= 0 {
+
+			game.clearMenu.update(ev)
+
+		} else {
+
+			game.clearTimer -= clearTimerSpeed * ev.Step()
+		}
 	}
 
 	// The rest
@@ -248,6 +261,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		game.cleared = game.objects.cleared
 		if game.cleared && !game.clearMenu.active {
 
+			game.clearTimer = gameClearTime
 			game.clearMenu.activate(0)
 
 			state = 1
@@ -387,7 +401,7 @@ func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
 func (game *gameScene) drawSuccess(c *core.Canvas, ap *core.AssetPack) {
 
 	const headerOff int32 = 16
-	const startOff int32 = headerOff + 24
+	const starOff int32 = headerOff + 24
 
 	bmp := ap.GetAsset("stageClear").(*core.Bitmap)
 
@@ -395,7 +409,7 @@ func (game *gameScene) drawSuccess(c *core.Canvas, ap *core.AssetPack) {
 		core.NewRGBA(0, 0, 0, 85))
 
 	c.DrawBitmapRegion(bmp, 0, 0, 128, 16,
-		c.Viewport().W/2-64, c.Viewport().H/2-headerOff,
+		c.Viewport().W/2-64, c.Viewport().H/2-headerOff+game.clearTimer*2,
 		core.FlipNone)
 
 	sx := int32(0)
@@ -404,10 +418,10 @@ func (game *gameScene) drawSuccess(c *core.Canvas, ap *core.AssetPack) {
 		sx = 24
 	}
 	c.DrawBitmapRegion(bmp, sx, 16, 24, 24,
-		c.Viewport().W/2-12, c.Viewport().H/2-startOff,
+		c.Viewport().W/2-12, c.Viewport().H/2-starOff-game.clearTimer*2,
 		core.FlipNone)
 
-	c.MoveTo(0, 32)
+	c.MoveTo(-game.clearTimer*2, 32)
 	game.clearMenu.draw(c, ap, false)
 }
 

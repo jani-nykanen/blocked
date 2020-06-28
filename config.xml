@@ -6,7 +6,7 @@
     <param key="window_width" value="768" />
     <param key="window_height" value="576" />
 
-    <param key="fullscreen" value="false" />
+    <param key="fullscreen" value="0" />
 
     <param key="canvas_width" value="256" />
     <param key="canvas_height" value="192" />

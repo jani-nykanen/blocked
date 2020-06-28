@@ -310,10 +310,19 @@ func (win *GameWindow) Launch(initialScene Scene) error {
 	return err
 }
 
+// Event : Getter for event. Should not exist,
+// but suddenly I realized I need event data
+// in the main function...
+func (win *GameWindow) Event() *Event {
+
+	return win.ev
+}
+
 // WindowBuilder : Used to build a window
 type WindowBuilder struct {
-	width  uint32
-	height uint32
+	width      uint32
+	height     uint32
+	fullscreen bool
 
 	CanvasWidth  uint32
 	CanvasHeight uint32
@@ -385,6 +394,11 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 
 	window.err = nil
 
+	if builder.fullscreen {
+
+		window.toggleFullscreen()
+	}
+
 	return window, err
 }
 
@@ -401,6 +415,14 @@ func (builder *WindowBuilder) SetDimensions(width, height uint32) *WindowBuilder
 func (builder *WindowBuilder) SetCaption(caption string) *WindowBuilder {
 
 	builder.caption = caption
+
+	return builder
+}
+
+// SetFullscreenState : Whether or not to toggle fullscreen in the beginning
+func (builder *WindowBuilder) SetFullscreenState(state bool) *WindowBuilder {
+
+	builder.fullscreen = state
 
 	return builder
 }
@@ -445,6 +467,7 @@ func NewWindowBuilder() *WindowBuilder {
 	builder.assetPath = ""
 	builder.sfxVolume = 100
 	builder.musicVolume = 100
+	builder.fullscreen = false
 
 	return builder
 }

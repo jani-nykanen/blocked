@@ -56,6 +56,13 @@ func (ev *Event) ToggleFullscreen() bool {
 	return ev.gw.fullscreen
 }
 
+// IsFullscreen : Tells if the application is running
+// on the fullscreen mode
+func (ev *Event) IsFullscreen() bool {
+
+	return ev.gw.fullscreen
+}
+
 // ChangeScene : Change the active scene
 func (ev *Event) ChangeScene(newScene Scene) error {
 
