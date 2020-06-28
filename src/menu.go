@@ -6,16 +6,17 @@ import (
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
-type menuCallback func(ev *core.Event)
+type menuCallback func(self *menuButton, dir int32, ev *core.Event)
 
 type menuButton struct {
-	cb   menuCallback
-	text string
+	cb      menuCallback
+	text    string
+	special bool
 }
 
-func newMenuButton(text string, cb menuCallback) menuButton {
+func newMenuButton(text string, cb menuCallback, special bool) menuButton {
 
-	return menuButton{cb: cb, text: text}
+	return menuButton{cb: cb, text: text, special: special}
 }
 
 type menu struct {
@@ -71,13 +72,35 @@ func (m *menu) update(ev *core.Event) {
 
 	m.cursorPos = core.NegMod(m.cursorPos, int32(len(m.buttons)))
 
-	if ev.Input.GetActionState("start") == core.StatePressed ||
-		ev.Input.GetActionState("select") == core.StatePressed {
+	playEffect := false
+	if m.buttons[m.cursorPos].special {
 
-		ev.Audio.PlaySample(ev.Assets.GetAsset("accept").(*core.Sample), 40)
-		if m.buttons[m.cursorPos].cb != nil {
+		if ev.Input.GetActionState("left") == core.StatePressed {
 
-			m.buttons[m.cursorPos].cb(ev)
+			m.buttons[m.cursorPos].cb(&m.buttons[m.cursorPos], -1, ev)
+			playEffect = true
+
+		} else if ev.Input.GetActionState("right") == core.StatePressed {
+
+			m.buttons[m.cursorPos].cb(&m.buttons[m.cursorPos], 1, ev)
+			playEffect = true
+		}
+
+		if playEffect {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("next").(*core.Sample), 40)
+		}
+
+	} else {
+
+		if ev.Input.GetActionState("start") == core.StatePressed ||
+			ev.Input.GetActionState("select") == core.StatePressed {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("accept").(*core.Sample), 40)
+			if m.buttons[m.cursorPos].cb != nil {
+
+				m.buttons[m.cursorPos].cb(&m.buttons[m.cursorPos], 0, ev)
+			}
 		}
 	}
 

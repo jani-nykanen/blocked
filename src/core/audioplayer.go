@@ -49,8 +49,8 @@ func NewAudioPlayer(sfxVolume int32, musicVolume int32) *AudioPlayer {
 
 	audio := new(AudioPlayer)
 
-	audio.sfxVolume = sfxVolume
-	audio.musicVolume = musicVolume
+	audio.SetSampleVolume(sfxVolume)
+	audio.SetMusicVolume(musicVolume)
 
 	return audio
 }

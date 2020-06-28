@@ -26,17 +26,17 @@ func (game *gameScene) createPauseMenu() {
 
 	buttons := []menuButton{
 
-		newMenuButton("Resume", func(ev *core.Event) {
+		newMenuButton("Resume", func(self *menuButton, dir int32, ev *core.Event) {
 			game.pauseMenu.deactivate()
-		}),
-		newMenuButton("Reset", func(ev *core.Event) {
+		}, false),
+		newMenuButton("Reset", func(self *menuButton, dir int32, ev *core.Event) {
 			game.reset(ev)
 			game.pauseMenu.deactivate()
-		}),
-		newMenuButton("Settings", func(ev *core.Event) {
+		}, false),
+		newMenuButton("Settings", func(self *menuButton, dir int32, ev *core.Event) {
 			game.settingsScreen.activate()
-		}),
-		newMenuButton("Quit", func(ev *core.Event) {
+		}, false),
+		newMenuButton("Quit", func(self *menuButton, dir int32, ev *core.Event) {
 
 			game.pauseMenu.deactivate()
 
@@ -48,7 +48,7 @@ func (game *gameScene) createPauseMenu() {
 						ev.Terminate(err)
 					}
 				})
-		}),
+		}, false),
 	}
 
 	game.pauseMenu = newMenu(buttons, true)
@@ -58,12 +58,12 @@ func (game *gameScene) createClearMenu() {
 
 	buttons := []menuButton{
 
-		newMenuButton("Play Again", func(ev *core.Event) {
+		newMenuButton("Play Again", func(self *menuButton, dir int32, ev *core.Event) {
 			game.reset(ev)
 			game.pauseMenu.deactivate()
-		}),
+		}, false),
 
-		newMenuButton("Next Stage", func(ev *core.Event) {
+		newMenuButton("Next Stage", func(self *menuButton, dir int32, ev *core.Event) {
 
 			game.frameTransition.Activate(true, core.TransitionCircleOutside,
 				30, core.NewRGB(0, 0, 0),
@@ -71,9 +71,9 @@ func (game *gameScene) createClearMenu() {
 
 					game.nextStage(ev)
 				})
-		}),
+		}, false),
 
-		newMenuButton("Stage Menu", func(ev *core.Event) {
+		newMenuButton("Stage Menu", func(self *menuButton, dir int32, ev *core.Event) {
 
 			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
 				core.NewRGB(0, 0, 0), func(ev *core.Event) {
@@ -83,7 +83,7 @@ func (game *gameScene) createClearMenu() {
 						ev.Terminate(err)
 					}
 				})
-		}),
+		}, false),
 	}
 
 	game.clearMenu = newMenu(buttons, false)
@@ -116,7 +116,7 @@ func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
 
 	game.frameTransition = core.NewTransitionManager()
 
-	game.settingsScreen = newSettings()
+	game.settingsScreen = newSettings(ev)
 	game.createPauseMenu()
 	game.createClearMenu()
 
@@ -211,7 +211,8 @@ func (game *gameScene) Refresh(ev *core.Event) {
 			return
 
 		} else if !game.failed &&
-			ev.Input.GetActionState("start") == core.StatePressed {
+			(ev.Input.GetActionState("start") == core.StatePressed ||
+				ev.Input.GetActionState("back") == core.StatePressed) {
 
 			ev.Audio.PlaySample(ev.Assets.GetAsset("pause").(*core.Sample), 30)
 			game.pauseMenu.activate(0)
@@ -230,6 +231,8 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 		if !game.cleared &&
 			ev.Input.GetActionState("reset") == core.StatePressed {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("restart").(*core.Sample), 30)
 
 			game.reset(ev)
 			return

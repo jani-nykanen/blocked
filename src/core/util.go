@@ -36,7 +36,7 @@ func InitSystem() error {
 	}
 
 	// Opens audio
-	err = mix.OpenAudio(22050, mix.DEFAULT_FORMAT, 2, 1024)
+	err = mix.OpenAudio(22050, mix.DEFAULT_FORMAT, 2, 2048)
 	if err != nil {
 
 		return err

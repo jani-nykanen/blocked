@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
 
@@ -51,27 +53,34 @@ func (s *settings) draw(c *core.Canvas, ap *core.AssetPack) {
 	s.options.draw(c, ap, true)
 }
 
-func newSettings() *settings {
+func newSettings(ev *core.Event) *settings {
 
 	s := new(settings)
 
 	buttons := []menuButton{
-		newMenuButton("Toggle fullscreen", func(ev *core.Event) {
+		newMenuButton("Toggle fullscreen", func(self *menuButton, dir int32, ev *core.Event) {
 			ev.ToggleFullscreen()
-		}),
+		}, false),
 
-		newMenuButton("SFX volume:   100", func(ev *core.Event) {
-			// ...
-		}),
+		newMenuButton("SFX volume:   "+strconv.Itoa(int(ev.Audio.GetSampleVolume())),
+			func(self *menuButton, dir int32, ev *core.Event) {
 
-		newMenuButton("Music volume: 100", func(ev *core.Event) {
-			// ...
-		}),
+				ev.Audio.SetSampleVolume(ev.Audio.GetSampleVolume() + 10*dir)
+				self.text = "SFX volume:   " + strconv.Itoa(int(ev.Audio.GetSampleVolume()))
+			}, true),
 
-		newMenuButton("Back", func(ev *core.Event) {
+		newMenuButton("Music volume: "+strconv.Itoa(int(ev.Audio.GetMusicVolume())),
+			func(self *menuButton, dir int32, ev *core.Event) {
+
+				ev.Audio.SetMusicVolume(ev.Audio.GetMusicVolume() + 10*dir)
+				self.text = "Music volume: " + strconv.Itoa(int(ev.Audio.GetMusicVolume()))
+
+			}, true),
+
+		newMenuButton("Back", func(self *menuButton, dir int32, ev *core.Event) {
 
 			s.options.deactivate()
-		}),
+		}, false),
 	}
 
 	s.options = newMenu(buttons, true)

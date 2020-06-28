@@ -95,10 +95,12 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 	loop := true
 	increaseMovementCounter := false
 
+	notMoving := !objm.isAnyMoving()
+
 	// All these loops are required to make it
 	// possible to move several blocks at the
 	// same time "consistently"
-	if !objm.cleared && !objm.isAnyMoving() {
+	if !objm.cleared && notMoving {
 
 		for {
 
@@ -124,7 +126,25 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 	var state int32
 	anyMoving := objm.isAnyMoving()
+	/*
+		if notMoving && anyMoving {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("move").(*core.Sample),
+				40)
+		}
+	*/
+	destroyPlayed := false
 	for _, b := range objm.blocks {
+
+		// This is required to make sure the "destroy" sound
+		// won't cut too early
+		if !destroyPlayed && b.playDestroy {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("destroy").(*core.Sample),
+				40)
+
+			destroyPlayed = true
+		}
 
 		state = b.update(anyMoving, s, ev)
 

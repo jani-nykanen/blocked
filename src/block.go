@@ -24,6 +24,7 @@ type block struct {
 	moveTimer   int32
 	jumping     bool
 	deactivated bool
+	playDestroy bool
 }
 
 func (b *block) handleControls(s *stage, ev *core.Event) bool {
@@ -55,6 +56,7 @@ func (b *block) handleControls(s *stage, ev *core.Event) bool {
 	if dx != 0 || dy != 0 {
 
 		b.moveTo(dx, dy, s)
+
 		return b.moving
 	}
 
@@ -111,8 +113,14 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 
 					s.updateSolidTile(b.pos.X, b.pos.Y, 2)
 
+					b.playDestroy = true
+
 					return blockRightHole
 				}
+
+				ev.Audio.PlaySample(ev.Assets.GetAsset("failure").(*core.Sample),
+					60)
+
 				return blockWrongHole
 			}
 		}
@@ -125,6 +133,9 @@ func (b *block) handleMovement(s *stage, ev *core.Event) int32 {
 
 			b.moveTimer = 0
 			s.updateSolidTile(b.pos.X, b.pos.Y, 2)
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
+				45)
 		}
 	}
 
@@ -176,6 +187,8 @@ func (b *block) computeRenderingPosition() {
 }
 
 func (b *block) update(anyMoving bool, s *stage, ev *core.Event) int32 {
+
+	b.playDestroy = false
 
 	if !b.exist {
 

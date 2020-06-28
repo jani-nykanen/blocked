@@ -52,6 +52,9 @@ func main() {
 				Build()).
 		BindInputManager(input).
 		SetAssetFilePath(conf.GetValue("asset_path", "")).
+		SetAudioVolume(
+			conf.GetNumericValue("sfx_volume", 100),
+			conf.GetNumericValue("music_volume", 100)).
 		Build()
 	if err != nil {
 

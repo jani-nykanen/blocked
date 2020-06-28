@@ -18,5 +18,10 @@
     <sample src="cancel.wav" name="cancel" />
     <sample src="next.wav" name="next" />
     <sample src="pause.wav" name="pause" />
+    <sample src="hit.wav" name="hit" />
+    <sample src="move.wav" name="move" />
+    <sample src="destroy.wav" name="destroy" />
+    <sample src="failure.wav" name="failure" />
+    <sample src="restart.wav" name="restart" />
 
 </assets>

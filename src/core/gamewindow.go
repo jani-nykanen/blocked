@@ -320,6 +320,9 @@ type WindowBuilder struct {
 	baseCanvas   *Canvas
 	input        *InputManager
 
+	sfxVolume   int32
+	musicVolume int32
+
 	assetPath string
 	caption   string
 }
@@ -374,7 +377,7 @@ func (builder *WindowBuilder) Build() (*GameWindow, error) {
 	}
 
 	window.tr = NewTransitionManager()
-	window.audio = NewAudioPlayer(100, 100)
+	window.audio = NewAudioPlayer(builder.sfxVolume, builder.musicVolume)
 
 	window.bbuilder = newBitmapBuilder(window.renderer)
 	window.ev = newEvent(window, 0, window.input, window.assets,
@@ -425,12 +428,23 @@ func (builder *WindowBuilder) SetAssetFilePath(path string) *WindowBuilder {
 	return builder
 }
 
+// SetAudioVolume : Set initial audio volume
+func (builder *WindowBuilder) SetAudioVolume(sfxVolume int32, musicVolume int32) *WindowBuilder {
+
+	builder.sfxVolume = sfxVolume
+	builder.musicVolume = musicVolume
+
+	return builder
+}
+
 // NewWindowBuilder : Constructs a new window builder
 func NewWindowBuilder() *WindowBuilder {
 
 	builder := new(WindowBuilder)
 
 	builder.assetPath = ""
+	builder.sfxVolume = 100
+	builder.musicVolume = 100
 
 	return builder
 }
