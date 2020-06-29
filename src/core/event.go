@@ -64,7 +64,7 @@ func (ev *Event) IsFullscreen() bool {
 }
 
 // ChangeScene : Change the active scene
-func (ev *Event) ChangeScene(newScene Scene) error {
+func (ev *Event) ChangeScene(newScene Scene) {
 
-	return ev.gw.changeScene(newScene)
+	ev.gw.changeScene(newScene)
 }

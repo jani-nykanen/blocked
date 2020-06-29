@@ -11,8 +11,9 @@ const (
 )
 
 type completionInfo struct {
-	states       []int32
-	currentStage int32
+	states            []int32
+	currentStage      int32
+	endingPlayedState int32
 	// This should go elsewhere, but since this data
 	// should be loaded only once, let's put it here...
 	sinfo *stageInfoContainer
@@ -49,11 +50,12 @@ func (cinfo *completionInfo) saveToFile(path string) error {
 		return err
 	}
 
-	bytes := make([]byte, cinfo.levelCount())
+	bytes := make([]byte, cinfo.levelCount()+1)
 	for i := range cinfo.states {
 
 		bytes[i] = byte(cinfo.states[i])
 	}
+	bytes[len(bytes)-1] = byte(cinfo.endingPlayedState)
 
 	_, err = file.Write(bytes)
 	if err != nil {
@@ -75,7 +77,7 @@ func (cinfo *completionInfo) readFromFile(path string) error {
 		return err
 	}
 
-	bytes := make([]byte, cinfo.levelCount())
+	bytes := make([]byte, cinfo.levelCount()+1)
 	var n int
 	n, err = file.Read(bytes)
 	if err != nil {
@@ -85,13 +87,33 @@ func (cinfo *completionInfo) readFromFile(path string) error {
 
 	for i, b := range bytes {
 
-		if i < n {
+		if int32(i) < core.MinInt32(int32(n), cinfo.levelCount()) {
 
 			cinfo.states[i] = int32(b)
 		}
 	}
 
+	if int32(n) >= cinfo.levelCount()+1 {
+
+		cinfo.endingPlayedState = int32(bytes[cinfo.levelCount()])
+	}
+
 	return nil
+}
+
+func (cinfo *completionInfo) checkIfNewEndingObtained() bool {
+
+	for _, s := range cinfo.states {
+
+		if s <= cinfo.endingPlayedState {
+
+			return false
+		}
+	}
+
+	cinfo.endingPlayedState++
+
+	return true
 }
 
 func newCompletionInfo(count int32) *completionInfo {
@@ -102,6 +124,8 @@ func newCompletionInfo(count int32) *completionInfo {
 	cinfo.states = make([]int32, count)
 
 	cinfo.sinfo = parseStageInfo("assets/maps")
+
+	cinfo.endingPlayedState = 0
 
 	return cinfo
 }

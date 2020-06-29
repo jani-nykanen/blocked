@@ -225,7 +225,7 @@ func (lg *levelGrid) draw(c *core.Canvas, ap *core.AssetPack) {
 
 func (lg *levelGrid) updateButtonStates(cinfo *completionInfo) {
 
-	for i := int32(1); i < core.MinInt32(cinfo.levelCount(), lg.width*lg.height); i++ {
+	for i := int32(1); i < core.MinInt32(cinfo.levelCount()+1, lg.width*lg.height); i++ {
 
 		lg.buttons[i].beatState = cinfo.getState(i)
 	}

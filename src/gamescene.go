@@ -19,6 +19,7 @@ type gameScene struct {
 	failed          bool
 	cleared         bool
 	clearTimer      int32
+	endingAchieved  bool
 	cogSprite       *core.Sprite
 	frameTransition *core.TransitionManager
 	pauseMenu       *menu
@@ -47,11 +48,7 @@ func (game *gameScene) createPauseMenu() {
 
 			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
 				core.NewRGB(0, 0, 0), func(ev *core.Event) {
-					err := ev.ChangeScene(newLevelMenuScene())
-					if err != nil {
-
-						ev.Terminate(err)
-					}
+					ev.ChangeScene(newLevelMenuScene())
 				})
 		}, false),
 	}
@@ -82,11 +79,8 @@ func (game *gameScene) createClearMenu() {
 
 			ev.Transition.Activate(true, core.TransitionCircleOutside, 30,
 				core.NewRGB(0, 0, 0), func(ev *core.Event) {
-					err := ev.ChangeScene(newLevelMenuScene())
-					if err != nil {
+					ev.ChangeScene(newLevelMenuScene())
 
-						ev.Terminate(err)
-					}
 				})
 		}, false),
 	}
@@ -234,6 +228,14 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		} else {
 
 			game.clearTimer -= clearTimerSpeed * ev.Step()
+			if game.endingAchieved && game.clearTimer <= 0 {
+
+				ev.Transition.Activate(true, core.TransitionHorizontalBar, 30,
+					core.NewRGB(255, 255, 255), func(ev *core.Event) {
+
+						ev.ChangeScene(newEndingScene())
+					})
+			}
 		}
 	}
 
@@ -258,8 +260,12 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 			game.gameStage.shake(failTime)
 		}
-		game.cleared = game.objects.cleared
+
+		game.cleared = game.objects.cleared || game.cleared
+
 		if game.cleared && !game.clearMenu.active {
+
+			game.endingAchieved = game.cinfo.checkIfNewEndingObtained()
 
 			game.clearTimer = gameClearTime
 			game.clearMenu.activate(0)
@@ -322,7 +328,7 @@ func (game *gameScene) drawFailureCross(c *core.Canvas, ap *core.AssetPack) {
 		px-12, py-12, core.FlipNone)
 }
 
-func (game *gameScene) DrawHUD(c *core.Canvas, ap *core.AssetPack) {
+func (game *gameScene) drawHUD(c *core.Canvas, ap *core.AssetPack) {
 
 	const shadowOff int32 = 1
 
@@ -457,7 +463,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	game.objects.draw(c, ap)
 	game.gameStage.postDraw(c, ap)
 
-	if game.cleared {
+	if game.cleared && !game.endingAchieved {
 
 		game.drawSuccess(c, ap)
 	}
@@ -474,7 +480,7 @@ func (game *gameScene) Redraw(c *core.Canvas, ap *core.AssetPack) {
 		game.drawFailureCross(c, ap)
 	}
 
-	game.DrawHUD(c, ap)
+	game.drawHUD(c, ap)
 
 	game.pauseMenu.draw(c, ap, true)
 

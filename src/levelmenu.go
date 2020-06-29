@@ -102,11 +102,8 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 					ev.Transition.SetNewTime(30)
 					ev.Transition.ResetCenter()
 
-					err := ev.ChangeScene(newGameScene())
-					if err != nil {
+					ev.ChangeScene(newGameScene())
 
-						ev.Terminate(err)
-					}
 				} else {
 
 					ev.Terminate(nil)
@@ -173,18 +170,14 @@ func (lm *levelMenu) Redraw(c *core.Canvas, ap *core.AssetPack) {
 func (lm *levelMenu) Dispose() interface{} {
 
 	lm.cinfo.currentStage = lm.levelIndex
-	/*
-		var err error
-		if lm.levelIndex == 0 {
 
-			err = lm.cinfo.saveToFile(defaultSaveFilePath)
-			if err != nil {
+	err := lm.cinfo.saveToFile(defaultSaveFilePath)
+	if err != nil {
 
-				fmt.Printf("Error writing the save file: %s\n", err.Error())
-				return nil
-			}
-		}
-	*/
+		fmt.Printf("Error writing the save file: %s\n", err.Error())
+		return nil
+	}
+
 	return lm.cinfo
 }
 

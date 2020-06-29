@@ -255,12 +255,17 @@ func (win *GameWindow) checkDefaultKeyShortcuts() {
 	}
 }
 
-func (win *GameWindow) changeScene(newScene Scene) error {
+func (win *GameWindow) changeScene(newScene Scene) {
 
 	ret := win.activeScene.Dispose()
 	win.activeScene = newScene
 
-	return win.activeScene.Activate(win.ev, ret)
+	err := win.activeScene.Activate(win.ev, ret)
+	if err != nil {
+
+		win.terminate(err)
+	}
+
 }
 
 func (win *GameWindow) terminate(err error) {
