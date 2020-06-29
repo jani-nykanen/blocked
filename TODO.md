@@ -3,4 +3,4 @@
 - ~~Move count is a little broken. Fix it.~~
 - ~~Another word for "Master" difficulty?~~
 - ~~A lot of problems I didn't bother to write down here~~
-- The last stage does not get registered
+- ~~The last stage does not get registered~~

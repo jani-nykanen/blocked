@@ -9,7 +9,28 @@ import (
 type ending struct {
 	endingType int32
 	cinfo      *completionInfo
+	text       string
+	charPos    int32
+	charTimer  int32
 }
+
+const (
+	endingCharTime int32 = 5
+
+	endingText1 = `
+Congratulations! You have
+beaten every stage! Now
+go collect the missing
+golden stars to earn the
+golden trophy!`
+
+	endingText2 = `
+Congratulations! You have
+collected every golden
+star in this game. You
+truly deserve this golden
+trophy!`
+)
 
 func (e *ending) Activate(ev *core.Event, param interface{}) error {
 
@@ -17,11 +38,22 @@ func (e *ending) Activate(ev *core.Event, param interface{}) error {
 
 		e.cinfo = param.(*completionInfo)
 		e.endingType = e.cinfo.endingPlayedState
-		if e.endingType == 0 {
+		if e.endingType == 0 || e.endingType > 2 {
 
 			return errors.New("Nice try")
 		}
 	}
+
+	if e.endingType == 1 {
+
+		e.text = endingText1
+	} else if e.endingType == 2 {
+
+		e.text = endingText2
+	}
+
+	e.charTimer = 0
+	e.charPos = 0
 
 	return nil
 }
@@ -32,31 +64,45 @@ func (e *ending) Refresh(ev *core.Event) {
 		return
 	}
 
-	if ev.Input.GetActionState("start") == core.StatePressed ||
-		ev.Input.GetActionState("select") == core.StatePressed {
+	if e.charPos < int32(len(e.text)) {
 
-		ev.Transition.Activate(true, core.TransitionCircleOutside, 60,
-			core.NewRGB(0, 0, 0), func(ev *core.Event) {
+		e.charTimer += ev.Step()
+		if e.charTimer >= endingCharTime {
 
-				ev.ChangeScene(newLevelMenuScene())
-			})
+			e.charTimer -= endingCharTime
+			e.charPos++
+		}
+
+	} else {
+
+		if ev.Input.GetActionState("start") == core.StatePressed ||
+			ev.Input.GetActionState("select") == core.StatePressed {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("accept").(*core.Sample), 40)
+
+			ev.Transition.Activate(true, core.TransitionCircleOutside, 60,
+				core.NewRGB(0, 0, 0), func(ev *core.Event) {
+
+					ev.ChangeScene(newLevelMenuScene())
+				})
+		}
 	}
 }
 
 func (e *ending) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
-	endingNames := []string{"normal", "best"}
+	const yOff = 24
 
 	c.MoveTo(0, 0)
 	c.ResetViewport()
 	c.Clear(36, 182, 255)
 
-	str := "This is the " + endingNames[e.endingType-1] + " ending."
-
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
-	c.DrawText(bmpFont, str, c.Viewport().W/2, c.Viewport().H/2-4,
-		-1, 0, true)
+	c.DrawText(bmpFont, e.text[0:e.charPos],
+		c.Viewport().W/2-(25*7)/2,
+		c.Viewport().H/2+yOff,
+		-1, 2, false)
 }
 
 func (e *ending) Dispose() interface{} {
