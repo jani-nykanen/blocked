@@ -28,6 +28,7 @@ type TransitionManager struct {
 	cb              TransitionCallback
 	center          Point
 	centerSpecified bool
+	textureCopied   bool
 }
 
 // Update : Update the transition manager
@@ -74,21 +75,39 @@ func (tr *TransitionManager) Draw(c *Canvas) {
 		t = 1.0 - t
 	}
 
-	var w, h int32
+	var p int32
 	var radius, maxRadius int32
 
 	// TODO: Implement the rest
 	switch tr.mode {
 
+	case TransitionVerticalBar:
+
+		p = RoundFloat32((1 - t) * float32(c.viewport.W/2))
+
+		// Left half
+		c.DrawCopiedFrameRegion(0, 0, c.viewport.W/2, c.viewport.H,
+			-p, 0, FlipNone)
+
+		// Right half
+		c.DrawCopiedFrameRegion(int32(c.frameCopy.width)/2, 0,
+			c.viewport.W/2, c.viewport.H,
+			c.viewport.W/2+p, 0, FlipNone)
+
+		break
+
 	case TransitionHorizontalBar:
 
-		w = c.viewport.W
-		h = RoundFloat32(t * float32(c.viewport.H/2))
+		p = RoundFloat32((1 - t) * float32(c.viewport.H/2))
 
 		// Upper half
-		c.FillRect(0, 0, w, h, tr.color)
+		c.DrawCopiedFrameRegion(0, 0, c.viewport.W, c.viewport.H/2,
+			0, -p, FlipNone)
+
 		// Bottom half
-		c.FillRect(0, c.viewport.H-h, w, h, tr.color)
+		c.DrawCopiedFrameRegion(0, int32(c.frameCopy.height)/2,
+			c.viewport.W, c.viewport.H/2,
+			0, c.viewport.H/2+p, FlipNone)
 
 		break
 
@@ -139,6 +158,7 @@ func (tr *TransitionManager) Activate(fadeIn bool,
 	tr.cb = cb
 	tr.color = color
 
+	tr.textureCopied = false
 	tr.centerSpecified = false
 }
 

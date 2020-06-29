@@ -230,11 +230,10 @@ func (game *gameScene) Refresh(ev *core.Event) {
 			game.clearTimer -= clearTimerSpeed * ev.Step()
 			if game.endingAchieved && game.clearTimer <= 0 {
 
-				ev.Transition.Activate(true, core.TransitionHorizontalBar, 30,
-					core.NewRGB(255, 255, 255), func(ev *core.Event) {
+				ev.Transition.Activate(false, core.TransitionVerticalBar, 60,
+					core.NewRGB(255, 255, 255), nil)
 
-						ev.ChangeScene(newEndingScene())
-					})
+				ev.ChangeScene(newEndingScene())
 			}
 		}
 	}
@@ -265,8 +264,6 @@ func (game *gameScene) Refresh(ev *core.Event) {
 
 		if game.cleared && !game.clearMenu.active {
 
-			game.endingAchieved = game.cinfo.checkIfNewEndingObtained()
-
 			game.clearTimer = gameClearTime
 			game.clearMenu.activate(0)
 
@@ -276,6 +273,8 @@ func (game *gameScene) Refresh(ev *core.Event) {
 				state = 2
 			}
 			game.cinfo.updateState(game.gameStage.id, state)
+
+			game.endingAchieved = game.cinfo.checkIfNewEndingObtained()
 		}
 
 	} else {

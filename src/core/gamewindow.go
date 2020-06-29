@@ -210,6 +210,15 @@ func (win *GameWindow) mainLoop() {
 
 	if redraw {
 
+		// This has to happen here before the new scene is drawn
+		if !win.tr.textureCopied && (win.tr.mode == TransitionHorizontalBar ||
+			win.tr.mode == TransitionVerticalBar) {
+
+			win.baseCanvas.CopyCurrentFrame()
+
+			win.tr.textureCopied = true
+		}
+
 		win.baseCanvas.begin()
 
 		win.activeScene.Redraw(win.baseCanvas, win.assets)

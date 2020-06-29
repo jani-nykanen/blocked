@@ -313,6 +313,14 @@ func (c *Canvas) DrawCopiedFrame(x, y int32, flip Flip) {
 	c.DrawBitmap(c.frameCopy, x, y, flip)
 }
 
+// DrawCopiedFrameRegion : Draw a region of the copied frame
+func (c *Canvas) DrawCopiedFrameRegion(sx, sy, sw, sh,
+	dx, dy int32, flip Flip) {
+
+	c.DrawBitmapRegion(c.frameCopy, sx, sy, sw, sh,
+		dx, dy, flip)
+}
+
 // SetBitmapColor : Set color to be used when drawing
 // a bitmap
 func (c *Canvas) SetBitmapColor(bmp *Bitmap, r, g, b uint8) {

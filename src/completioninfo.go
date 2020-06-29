@@ -103,15 +103,21 @@ func (cinfo *completionInfo) readFromFile(path string) error {
 
 func (cinfo *completionInfo) checkIfNewEndingObtained() bool {
 
+	min := int32(2)
 	for _, s := range cinfo.states {
 
 		if s <= cinfo.endingPlayedState {
 
 			return false
 		}
+
+		if s < min {
+
+			min = s
+		}
 	}
 
-	cinfo.endingPlayedState++
+	cinfo.endingPlayedState = core.MaxInt32(cinfo.endingPlayedState, min)
 
 	return true
 }

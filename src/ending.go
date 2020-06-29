@@ -35,8 +35,8 @@ func (e *ending) Refresh(ev *core.Event) {
 	if ev.Input.GetActionState("start") == core.StatePressed ||
 		ev.Input.GetActionState("select") == core.StatePressed {
 
-		ev.Transition.Activate(true, core.TransitionHorizontalBar, 30,
-			core.NewRGB(255, 255, 255), func(ev *core.Event) {
+		ev.Transition.Activate(true, core.TransitionCircleOutside, 60,
+			core.NewRGB(0, 0, 0), func(ev *core.Event) {
 
 				ev.ChangeScene(newLevelMenuScene())
 			})
