@@ -172,7 +172,6 @@ func (objm *objectManager) update(s *stage, ev *core.Event) bool {
 
 		ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
 			45)
-
 	}
 
 	if playDestroy {
