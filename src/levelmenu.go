@@ -24,15 +24,6 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 	lm.grid = newLevelGrid(4, 4)
 	lm.levelIndex = -1
 
-	// TODO: Remove from the release version
-	if !ev.Transition.Active() {
-
-		ev.Transition.Activate(false, core.TransitionCircleOutside,
-			30, core.NewRGB(0, 0, 0), nil)
-
-		ev.Transition.ResetCenter()
-	}
-
 	var err error
 	if param != nil {
 
@@ -106,7 +97,9 @@ func (lm *levelMenu) Refresh(ev *core.Event) {
 
 				} else {
 
-					ev.Terminate(nil)
+					ev.Transition.ResetCenter()
+					ev.Transition.SetNewTime(30)
+					ev.ChangeScene(newTitleScreenScene())
 				}
 			})
 		// TODO: The constant 4 is the same as the shadow offset in

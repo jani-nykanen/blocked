@@ -83,7 +83,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = win.Launch(newLevelMenuScene())
+	err = win.Launch(newTitleScreenScene())
 	if err != nil {
 
 		fmt.Println(err)
