@@ -13,6 +13,7 @@
     <bitmap src="levelmenu_background.png" name="levelmenuBackground" />
     <bitmap src="levelbuttons.png" name="levelButtons" />
     <bitmap src="stageclear.png" name="stageClear" />
+    <bitmap src="trophies.png" name="trophies" />
 
     <sample src="accept.wav" name="accept" />
     <sample src="cancel.wav" name="cancel" />

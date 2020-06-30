@@ -7,15 +7,18 @@ import (
 )
 
 type ending struct {
-	endingType int32
-	cinfo      *completionInfo
-	text       string
-	charPos    int32
-	charTimer  int32
+	endingType  int32
+	cinfo       *completionInfo
+	text        string
+	charPos     int32
+	charTimer   int32
+	trophyPos   float32
+	trophySpeed float32
 }
 
 const (
-	endingCharTime int32 = 5
+	endingCharTime    int32   = 5
+	endingTrophyFloor float32 = 120.0
 
 	endingText1 = `
 Congratulations! You have
@@ -55,13 +58,43 @@ func (e *ending) Activate(ev *core.Event, param interface{}) error {
 	e.charTimer = 0
 	e.charPos = 0
 
+	e.trophyPos = 0
+	e.trophySpeed = 0
+
 	return nil
 }
 
 func (e *ending) Refresh(ev *core.Event) {
 
+	const trophySpeedDelta float32 = 0.0625
+	const trophySpeedMax float32 = 3.0
+	const floorCollisionMod float32 = 0.75
+	const hitSoundEpsilon float32 = 0.25
+
 	if ev.Transition.Active() {
 		return
+	}
+
+	e.trophySpeed += trophySpeedDelta * float32(ev.Step())
+	// math.Max would require too much casting, this is
+	// faster
+	if e.trophySpeed > trophySpeedMax {
+		e.trophySpeed = trophySpeedMax
+	}
+
+	e.trophyPos += e.trophySpeed * float32(ev.Step())
+
+	if e.trophyPos >= endingTrophyFloor {
+
+		e.trophyPos = endingTrophyFloor
+
+		if e.trophySpeed > hitSoundEpsilon {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
+				40)
+		}
+
+		e.trophySpeed *= -floorCollisionMod
 	}
 
 	if e.charPos < int32(len(e.text)) {
@@ -97,8 +130,15 @@ func (e *ending) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	c.ResetViewport()
 	c.Clear(36, 182, 255)
 
-	bmpFont := ap.GetAsset("font").(*core.Bitmap)
+	// Trophy
+	bmpTrophies := ap.GetAsset("trophies").(*core.Bitmap)
+	p := core.RoundFloat32(e.trophyPos) - 64
+	c.DrawBitmapRegion(bmpTrophies,
+		(e.endingType-1)*64, 0, 64, 64,
+		c.Viewport().W/2-32, p, core.FlipNone)
 
+	// Story text
+	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 	c.DrawText(bmpFont, e.text[0:e.charPos],
 		c.Viewport().W/2-(25*7)/2,
 		c.Viewport().H/2+yOff,
