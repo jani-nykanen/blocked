@@ -17,6 +17,8 @@ type completionInfo struct {
 	// This should go elsewhere, but since this data
 	// should be loaded only once, let's put it here...
 	sinfo *stageInfoContainer
+
+	enterPressed bool // For this reason, RENAME THIS
 }
 
 func (cinfo *completionInfo) updateState(index int32, state int32) {
@@ -122,16 +124,17 @@ func (cinfo *completionInfo) checkIfNewEndingObtained() bool {
 	return true
 }
 
-func newCompletionInfo(count int32) *completionInfo {
+func newCompletionInfo() *completionInfo {
 
 	cinfo := new(completionInfo)
 
 	cinfo.currentStage = 1
-	cinfo.states = make([]int32, count)
-
 	cinfo.sinfo = parseStageInfo("assets/maps")
+	cinfo.states = make([]int32, len(cinfo.sinfo.entries))
 
 	cinfo.endingPlayedState = 0
+
+	cinfo.enterPressed = false
 
 	return cinfo
 }

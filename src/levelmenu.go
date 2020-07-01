@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -21,13 +22,13 @@ type levelMenu struct {
 func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 
 	lm.bgPos = 0
-	lm.grid = newLevelGrid(4, 4)
 	lm.levelIndex = -1
 
-	var err error
 	if param != nil {
 
 		lm.cinfo = param.(*completionInfo)
+
+		lm.grid = newLevelGrid(4, int32(len(lm.cinfo.states)/4)+1)
 
 		lm.grid.cursorPos.X = lm.cinfo.currentStage % lm.grid.width
 		lm.grid.cursorPos.Y = lm.cinfo.currentStage / lm.grid.width
@@ -36,13 +37,7 @@ func (lm *levelMenu) Activate(ev *core.Event, param interface{}) error {
 
 	} else {
 
-		lm.cinfo = newCompletionInfo(lm.grid.width*lm.grid.height - 1)
-		err = lm.cinfo.readFromFile(defaultSaveFilePath)
-		if err != nil {
-
-			fmt.Printf("Error reading the save file: %s\n", err.Error())
-		}
-		lm.grid.updateButtonStates(lm.cinfo)
+		return errors.New("missing completion info")
 	}
 
 	return nil

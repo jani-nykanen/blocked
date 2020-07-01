@@ -1,12 +1,21 @@
 package main
 
-import "github.com/jani-nykanen/ultimate-puzzle/src/core"
+import (
+	"fmt"
+
+	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+)
 
 type titleScreen struct {
-	cinfo     *completionInfo
-	options   *settings
-	titleMenu *menu
+	cinfo      *completionInfo
+	options    *settings
+	titleMenu  *menu
+	enterTimer int32
 }
+
+const (
+	titleEnterTimeMax int32 = 60
+)
 
 func (ts *titleScreen) createMenu() {
 
@@ -58,19 +67,27 @@ func (ts *titleScreen) Activate(ev *core.Event, param interface{}) error {
 		ev.Transition.ResetCenter()
 	}
 
+	var err error
 	if param != nil {
 
 		ts.cinfo = param.(*completionInfo)
 
 	} else {
 
-		ts.cinfo = nil
+		ts.cinfo = newCompletionInfo()
+		err = ts.cinfo.readFromFile(defaultSaveFilePath)
+		if err != nil {
+
+			fmt.Printf("Error reading the save file: %s\n", err.Error())
+		}
 	}
 
 	ts.createMenu()
 	ts.titleMenu.activate(0)
 
 	ts.options = newSettings(ev)
+
+	ts.enterTimer = 59
 
 	return nil
 }
@@ -81,18 +98,33 @@ func (ts *titleScreen) Refresh(ev *core.Event) {
 		return
 	}
 
-	if ts.options.active() {
+	if !ts.cinfo.enterPressed {
 
-		ts.options.update(ev)
-		return
+		ts.enterTimer = (ts.enterTimer + 1) % titleEnterTimeMax
+
+		if ev.Input.GetActionState("start") == core.StatePressed ||
+			ev.Input.GetActionState("select") == core.StatePressed {
+
+			ev.Audio.PlaySample(ev.Assets.GetAsset("pause").(*core.Sample), 40)
+			ts.cinfo.enterPressed = true
+		}
+
+	} else {
+
+		if ts.options.active() {
+
+			ts.options.update(ev)
+			return
+		}
+
+		ts.titleMenu.update(ev)
 	}
-
-	ts.titleMenu.update(ev)
 }
 
 func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	const logoShadowOff int32 = 2
+	const logoY int32 = 24
 
 	c.MoveTo(0, 0)
 	c.ResetViewport()
@@ -114,16 +146,26 @@ func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 		c.DrawBitmap(bmpLogo,
 			c.Viewport().W/2-int32(bmpLogo.Width()/2)+logoShadowOff*i,
-			16+logoShadowOff*i, core.FlipNone)
+			logoY+logoShadowOff*i, core.FlipNone)
 	}
-
-	c.MoveTo(0, 32)
-	ts.titleMenu.draw(c, ap, true)
-	c.MoveTo(0, 0)
 
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 	c.DrawText(bmpFont, string(rune(169))+"2020 Jani Nyk"+string(rune(18))+"nen",
 		c.Viewport().W/2, c.Viewport().H-10, 0, 0, true)
+
+	if !ts.cinfo.enterPressed {
+
+		if ts.enterTimer >= titleEnterTimeMax/2 {
+			c.DrawText(bmpFont, "PRESS ENTER",
+				c.Viewport().W/2, 140, 0, 0, true)
+		}
+
+		return
+	}
+
+	c.MoveTo(0, 40)
+	ts.titleMenu.draw(c, ap, true)
+	c.MoveTo(0, 0)
 
 	if ts.options.active() {
 
@@ -133,10 +175,6 @@ func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 func (ts *titleScreen) Dispose() interface{} {
 
-	// This does not make any sense
-	if ts.cinfo == nil {
-		return nil
-	}
 	return ts.cinfo
 }
 
