@@ -92,9 +92,30 @@ func (ts *titleScreen) Refresh(ev *core.Event) {
 
 func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
+	const logoShadowOff int32 = 2
+
 	c.MoveTo(0, 0)
 	c.ResetViewport()
 	c.Clear(36, 182, 255)
+
+	// Logo
+	bmpLogo := ap.GetAsset("logo").(*core.Bitmap)
+	for i := int32(1); i >= 0; i-- {
+
+		if i == 1 {
+
+			c.SetBitmapColor(bmpLogo, 0, 0, 0)
+			c.SetBitmapAlpha(bmpLogo, 85)
+		} else {
+
+			c.SetBitmapColor(bmpLogo, 255, 255, 255)
+			c.SetBitmapAlpha(bmpLogo, 255)
+		}
+
+		c.DrawBitmap(bmpLogo,
+			c.Viewport().W/2-int32(bmpLogo.Width()/2)+logoShadowOff*i,
+			16+logoShadowOff*i, core.FlipNone)
+	}
 
 	c.MoveTo(0, 32)
 	ts.titleMenu.draw(c, ap, true)
