@@ -23,12 +23,10 @@ func (ts *titleScreen) createMenu() {
 
 		newMenuButton("Start Game", func(self *menuButton, dir int32, ev *core.Event) {
 
-			ev.Transition.Activate(true, core.TransitionCircleOutside,
-				30, core.NewRGB(0, 0, 0),
-				func(ev *core.Event) {
+			ev.Transition.Activate(false, core.TransitionHorizontalBar, 60,
+				core.NewRGB(255, 255, 255), nil)
 
-					ev.ChangeScene(newLevelMenuScene())
-				})
+			ev.ChangeScene(newLevelMenuScene())
 
 		}, false),
 
