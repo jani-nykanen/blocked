@@ -84,7 +84,8 @@ func (e *ending) Refresh(ev *core.Event) {
 
 	e.trophyPos += e.trophySpeed * float32(ev.Step())
 
-	if e.trophyPos >= endingTrophyFloor {
+	if e.trophySpeed >= 0 &&
+		e.trophyPos >= endingTrophyFloor {
 
 		e.trophyPos = endingTrophyFloor
 

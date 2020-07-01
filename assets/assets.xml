@@ -15,6 +15,7 @@
     <bitmap src="stageclear.png" name="stageClear" />
     <bitmap src="trophies.png" name="trophies" />
     <bitmap src="logo.png" name="logo" />
+    <bitmap src="createdby.png" name="createdBy" />
 
     <sample src="accept.wav" name="accept" />
     <sample src="cancel.wav" name="cancel" />

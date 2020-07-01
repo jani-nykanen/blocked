@@ -122,7 +122,7 @@ func (ts *titleScreen) Refresh(ev *core.Event) {
 func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 
 	const logoShadowOff int32 = 2
-	const logoY int32 = 24
+	const logoY int32 = 20
 
 	c.MoveTo(0, 0)
 	c.ResetViewport()

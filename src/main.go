@@ -83,7 +83,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = win.Launch(newTitleScreenScene())
+	err = win.Launch(newIntroScene())
 	if err != nil {
 
 		fmt.Println(err)
