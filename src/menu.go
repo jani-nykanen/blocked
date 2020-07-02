@@ -26,6 +26,7 @@ type menu struct {
 	maxNameLength int32
 	cursorWave    float32
 	canCancel     bool
+	title         string
 }
 
 func (m *menu) activate(cursorPos int32) {
@@ -116,6 +117,16 @@ func (m *menu) update(ev *core.Event) {
 		math.Mod(float64(m.cursorWave+waveTime*float32(ev.Step())), math.Pi*2))
 }
 
+func (m *menu) getTrueVerticalElementCount() int32 {
+
+	t := int32(len(m.buttons) + 1)
+	if len(m.title) > 0 {
+
+		t++
+	}
+	return t
+}
+
 func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 
 	const buttonOffset int32 = 10
@@ -137,7 +148,7 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 	bmpFont := ap.GetAsset("font").(*core.Bitmap)
 
 	width := (m.maxNameLength + 3) * 8
-	height := int32(len(m.buttons)+1) * buttonOffset
+	height := m.getTrueVerticalElementCount() * buttonOffset
 
 	left := c.Viewport().W/2 - width/2
 	top := c.Viewport().H/2 - height/2
@@ -161,6 +172,15 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 
 	// Draw buttons
 	dy := top + buttonOffset/2
+	p := int32(0)
+
+	if len(m.title) > 0 {
+
+		c.DrawText(bmpFont, m.title,
+			left+8, dy,
+			0, 0, false)
+		p++
+	}
 
 	for i, b := range m.buttons {
 
@@ -169,28 +189,30 @@ func (m *menu) draw(c *core.Canvas, ap *core.AssetPack, drawBox bool) {
 		}
 
 		c.DrawText(bmpFont, b.text,
-			left+16, dy+int32(i)*buttonOffset,
+			left+16, dy+(int32(i)+p)*buttonOffset,
 			0, 0, false)
 
 		if int32(i) == m.cursorPos {
 			c.SetBitmapColor(bmpFont, 255, 255, 255)
 		}
+
+		i++
 	}
 
 	// Cursor
 	wave := core.RoundFloat32(float32(math.Sin(float64(m.cursorWave))) * amplitude)
 	c.DrawBitmapRegion(bmpFont, 0, 8, 16, 8,
 		left+2+wave,
-		dy+m.cursorPos*buttonOffset,
+		dy+(p+m.cursorPos)*buttonOffset,
 		core.FlipNone)
 }
 
-func newMenu(buttons []menuButton, canCancel bool) *menu {
+func newMenu(buttons []menuButton, canCancel bool, title string) *menu {
 
 	m := new(menu)
 	m.buttons = make([]menuButton, 0)
 
-	m.maxNameLength = 0
+	m.maxNameLength = int32(len(title))
 
 	for _, b := range buttons {
 
@@ -204,6 +226,8 @@ func newMenu(buttons []menuButton, canCancel bool) *menu {
 
 	m.active = false
 	m.canCancel = canCancel
+
+	m.title = title
 
 	return m
 }

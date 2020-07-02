@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jani-nykanen/ultimate-puzzle/src/core"
 )
@@ -11,11 +12,43 @@ type titleScreen struct {
 	options    *settings
 	titleMenu  *menu
 	enterTimer int32
+	confirmBox *menu
+	okBox      *menu
 }
 
 const (
 	titleEnterTimeMax int32 = 60
 )
+
+func (ts *titleScreen) createOtherMenus() {
+
+	ts.confirmBox = newMenu([]menuButton{
+
+		newMenuButton("Yes", func(self *menuButton, dir int32, ev *core.Event) {
+
+			// We really don't care if this fails or not
+			os.Remove(defaultSaveFilePath)
+
+			ts.confirmBox.deactivate()
+			ts.cinfo.clear()
+			ts.okBox.activate(0)
+
+		}, false),
+		newMenuButton("No", func(self *menuButton, dir int32, ev *core.Event) {
+
+			ts.confirmBox.deactivate()
+
+		}, false),
+	}, true, "Clear the save data?")
+
+	ts.okBox = newMenu([]menuButton{
+
+		newMenuButton("Ok", func(self *menuButton, dir int32, ev *core.Event) {
+
+			ts.okBox.deactivate()
+		}, false),
+	}, true, "Data cleared.")
+}
 
 func (ts *titleScreen) createMenu() {
 
@@ -38,7 +71,8 @@ func (ts *titleScreen) createMenu() {
 
 		newMenuButton("Clear Data", func(self *menuButton, dir int32, ev *core.Event) {
 
-			// ...
+			ts.confirmBox.activate(1)
+
 		}, false),
 
 		newMenuButton("Quit Game", func(self *menuButton, dir int32, ev *core.Event) {
@@ -51,7 +85,7 @@ func (ts *titleScreen) createMenu() {
 		}, false),
 	}
 
-	ts.titleMenu = newMenu(buttons, false)
+	ts.titleMenu = newMenu(buttons, false, "")
 }
 
 func (ts *titleScreen) Activate(ev *core.Event, param interface{}) error {
@@ -83,6 +117,8 @@ func (ts *titleScreen) Activate(ev *core.Event, param interface{}) error {
 	ts.createMenu()
 	ts.titleMenu.activate(0)
 
+	ts.createOtherMenus()
+
 	ts.options = newSettings(ev)
 
 	ts.enterTimer = 59
@@ -108,6 +144,17 @@ func (ts *titleScreen) Refresh(ev *core.Event) {
 		}
 
 	} else {
+
+		if ts.okBox.active {
+
+			ts.okBox.update(ev)
+			return
+
+		} else if ts.confirmBox.active {
+
+			ts.confirmBox.update(ev)
+			return
+		}
 
 		if ts.options.active() {
 
@@ -168,6 +215,15 @@ func (ts *titleScreen) Redraw(c *core.Canvas, ap *core.AssetPack) {
 	if ts.options.active() {
 
 		ts.options.draw(c, ap)
+	}
+
+	if ts.okBox.active {
+
+		ts.okBox.draw(c, ap, true)
+
+	} else if ts.confirmBox.active {
+
+		ts.confirmBox.draw(c, ap, true)
 	}
 }
 

@@ -83,7 +83,7 @@ func newSettings(ev *core.Event) *settings {
 		}, false),
 	}
 
-	s.options = newMenu(buttons, true)
+	s.options = newMenu(buttons, true, "")
 
 	return s
 }

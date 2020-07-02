@@ -5,25 +5,29 @@ import (
 )
 
 const (
-	introAppearTime int32 = 60
-	introWaitTime   int32 = 120
-	introLeaveTime  int32 = 60
+	introAppearTime int32 = 45
+	// This is useless, but I'm too lazy to
+	// refactor the code to make it look better
+	introWaitTime  int32 = 1337
+	introLeaveTime int32 = 45
 )
 
 type introScene struct {
-	timer     int32
-	ballPos   core.Vector2
-	ballSpeed core.Vector2
+	timer        int32
+	ballPos      core.Vector2
+	ballSpeed    core.Vector2
+	floorTouched bool
 }
 
 func (intro *introScene) Activate(ev *core.Event, param interface{}) error {
 
 	const initialWait int32 = -30
 
-	intro.ballSpeed.X = 1.45
+	intro.ballSpeed.X = 0.75
 	intro.ballSpeed.Y = 0.0
-	intro.ballPos.X = -32
-	intro.ballPos.Y = 16
+	intro.ballPos.X = 32
+	intro.ballPos.Y = -128
+	intro.floorTouched = false
 
 	intro.timer = initialWait
 
@@ -33,8 +37,9 @@ func (intro *introScene) Activate(ev *core.Event, param interface{}) error {
 func (intro *introScene) Refresh(ev *core.Event) {
 
 	const ballFloorY float32 = 112
-	const ballGravity float32 = 0.125
-	const ballJumpMod float32 = 0.80
+	const ballGravity float32 = 0.075
+	const ballMaxGravity float32 = 4.0
+	const ballJumpMod float32 = 0.750
 
 	if ev.Transition.Active() {
 		return
@@ -46,9 +51,7 @@ func (intro *introScene) Refresh(ev *core.Event) {
 		return
 	}
 
-	timeSum := introAppearTime + introWaitTime + introLeaveTime
-
-	if intro.timer >= timeSum {
+	if intro.ballPos.Y > 192+64 {
 
 		ev.Transition.Activate(false, core.TransitionCircleOutside,
 			60, core.NewRGB(0, 0, 0), nil)
@@ -56,18 +59,31 @@ func (intro *introScene) Refresh(ev *core.Event) {
 	}
 
 	intro.ballSpeed.Y += ballGravity * float32(ev.Step())
-	if intro.ballSpeed.Y > 0 &&
+	if intro.ballSpeed.Y > ballMaxGravity {
+
+		intro.ballSpeed.Y = ballMaxGravity
+	}
+
+	if !intro.floorTouched &&
+		intro.ballSpeed.Y > 0 &&
 		intro.ballPos.Y >= ballFloorY {
 
 		intro.ballPos.Y = ballFloorY
 		intro.ballSpeed.Y *= -ballJumpMod
 
-		ev.Audio.PlaySample(ev.Assets.GetAsset("hit").(*core.Sample),
+		intro.floorTouched = true
+
+		intro.timer = introAppearTime + introWaitTime
+
+		ev.Audio.PlaySample(ev.Assets.GetAsset("destroy").(*core.Sample),
 			40)
 	}
 
-	intro.ballPos.X += intro.ballSpeed.X * float32(ev.Step())
-	intro.ballPos.Y += intro.ballSpeed.Y * float32(ev.Step())
+	if intro.timer > introAppearTime {
+
+		intro.ballPos.X += intro.ballSpeed.X * float32(ev.Step())
+		intro.ballPos.Y += intro.ballSpeed.Y * float32(ev.Step())
+	}
 }
 
 func (intro *introScene) Redraw(c *core.Canvas, ap *core.AssetPack) {

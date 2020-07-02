@@ -18,7 +18,7 @@ type completionInfo struct {
 	// should be loaded only once, let's put it here...
 	sinfo *stageInfoContainer
 
-	enterPressed bool // For this reason, RENAME THIS
+	enterPressed bool // For this reason, RENAME THIS STRUCT
 }
 
 func (cinfo *completionInfo) updateState(index int32, state int32) {
@@ -122,6 +122,16 @@ func (cinfo *completionInfo) checkIfNewEndingObtained() bool {
 	cinfo.endingPlayedState = core.MaxInt32(cinfo.endingPlayedState, min)
 
 	return true
+}
+
+func (cinfo *completionInfo) clear() {
+
+	for i := range cinfo.states {
+
+		cinfo.states[i] = 0
+	}
+	cinfo.endingPlayedState = 0
+
 }
 
 func newCompletionInfo() *completionInfo {

@@ -53,7 +53,7 @@ func (game *gameScene) createPauseMenu() {
 		}, false),
 	}
 
-	game.pauseMenu = newMenu(buttons, true)
+	game.pauseMenu = newMenu(buttons, true, "")
 }
 
 func (game *gameScene) createClearMenu() {
@@ -85,7 +85,7 @@ func (game *gameScene) createClearMenu() {
 		}, false),
 	}
 
-	game.clearMenu = newMenu(buttons, false)
+	game.clearMenu = newMenu(buttons, false, "")
 }
 
 func (game *gameScene) Activate(ev *core.Event, param interface{}) error {
