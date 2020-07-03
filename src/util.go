@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+	"github.com/jani-nykanen/blocked/src/core"
 )
 
 func getDifficultyName(dif int32) string {

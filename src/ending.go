@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 
-	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+	"github.com/jani-nykanen/blocked/src/core"
 )
 
 type ending struct {

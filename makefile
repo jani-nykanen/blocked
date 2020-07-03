@@ -7,7 +7,13 @@ core:
 game:
 	(cd src; go build -o ../$@)
 
-all: core game
+.PHONE: game.exe
+game.exe:
+	(cd src; go build -o ../$@)
+
+all: linux
+linux: core game
+windows: core game.exe
 
 run:
 	./game

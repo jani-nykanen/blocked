@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+	"github.com/jani-nykanen/blocked/src/core"
 )
 
 const (

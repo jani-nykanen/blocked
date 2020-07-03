@@ -3,7 +3,7 @@ package main
 import (
 	"math"
 
-	"github.com/jani-nykanen/ultimate-puzzle/src/core"
+	"github.com/jani-nykanen/blocked/src/core"
 )
 
 type menuCallback func(self *menuButton, dir int32, ev *core.Event)
