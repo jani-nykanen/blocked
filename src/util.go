@@ -10,7 +10,7 @@ import (
 func getDifficultyName(dif int32) string {
 
 	difficultyNames := []string{
-		"Easy", "Average", "Hard", "Expert"}
+		"Easy", "Medium", "Hard", "Expert"}
 
 	return difficultyNames[core.ClampInt32(dif, 0, int32(len(difficultyNames))-1)]
 }
@@ -19,7 +19,7 @@ func writeSettingsFile(path string, ev *core.Event) error {
 
 	data := make([]byte, 3)
 
-	// 'cause byte(<boolean value>) does not work
+	// 'cause you can't typecast bool to byte
 	data[0] = 0
 	if ev.IsFullscreen() {
 		data[0] = 1

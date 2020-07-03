@@ -1,14 +1,26 @@
 package core
 
+import (
+	"github.com/veandco/go-sdl2/mix"
+)
+
 // AudioPlayer : Used to play audio, obviously
 type AudioPlayer struct {
 	sfxVolume   int32
 	musicVolume int32
 }
 
-func (audio *AudioPlayer) computeProductVolume(vol int32) int32 {
+func (audio *AudioPlayer) computeProductVolumeForSamples(vol int32) int32 {
 
 	res := vol * audio.sfxVolume
+	res /= 100
+
+	return res
+}
+
+func (audio *AudioPlayer) computeProductVolumeForMusic(vol int32) int32 {
+
+	res := vol * audio.musicVolume
 	res /= 100
 
 	return res
@@ -41,7 +53,26 @@ func (audio *AudioPlayer) GetMusicVolume() int32 {
 // PlaySample : Play a sample once
 func (audio *AudioPlayer) PlaySample(s *Sample, vol int32) {
 
-	s.Play(audio.computeProductVolume(vol))
+	s.Play(audio.computeProductVolumeForSamples(vol))
+}
+
+// StopSamples : Stop all the samples that are playing
+func (audio *AudioPlayer) StopSamples() {
+
+	mix.HaltChannel(-1)
+}
+
+// PlayMusic : Starts playing a music track
+func (audio *AudioPlayer) PlayMusic(m *Music, vol int32, loops int32) {
+
+	totalVol := audio.computeProductVolumeForMusic(vol)
+	m.play(totalVol, loops)
+}
+
+// StopMusic : Stop playing any music
+func (audio *AudioPlayer) StopMusic() {
+
+	mix.HaltMusic()
 }
 
 // NewAudioPlayer : Constructs a new audio player

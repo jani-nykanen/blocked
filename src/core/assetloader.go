@@ -13,8 +13,10 @@ type assetsXML struct {
 	XMLName    xml.Name    `xml:"assets"`
 	BitmapPath string      `xml:"bitmap_path,attr"`
 	SamplePath string      `xml:"sample_path,attr"`
+	MusicPath  string      `xml:"music_path,attr"`
 	Bitmaps    []bitmapXML `xml:"bitmap"`
 	Samples    []sampleXML `xml:"sample"`
+	Tracks     []musicXML  `xml:"music"`
 }
 type bitmapXML struct {
 	XMLName xml.Name `xml:"bitmap"`
@@ -23,6 +25,11 @@ type bitmapXML struct {
 }
 type sampleXML struct {
 	XMLName xml.Name `xml:"sample"`
+	Path    string   `xml:"src,attr"`
+	Name    string   `xml:"name,attr"`
+}
+type musicXML struct {
+	XMLName xml.Name `xml:"music"`
 	Path    string   `xml:"src,attr"`
 	Name    string   `xml:"name,attr"`
 }
@@ -70,6 +77,18 @@ func parseAssetFile(path string, renderer *sdl.Renderer) (*AssetPack, error) {
 		fullPath = assets.SamplePath + s.Path
 
 		err = ap.AddSample(s.Name, fullPath)
+		if err != nil {
+
+			return nil, err
+		}
+	}
+
+	// Load music
+	for _, m := range assets.Tracks {
+
+		fullPath = assets.MusicPath + m.Path
+
+		err = ap.AddMusic(m.Name, fullPath)
 		if err != nil {
 
 			return nil, err

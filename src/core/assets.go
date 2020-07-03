@@ -29,6 +29,9 @@ func (ap *AssetPack) dispose() {
 			a.data.(*Sample).dispose()
 			break
 
+		case *Music:
+			a.data.(*Music).dispose()
+
 		default:
 			break
 
@@ -51,8 +54,7 @@ func (ap *AssetPack) AddBitmap(name string, path string) error {
 
 	var err error
 	var bmp *Bitmap
-	// TODO: Better name for this, please
-	var ass asset
+	var a asset
 
 	bmp, err = loadBitmap(ap.renderer, path)
 	if err != nil {
@@ -60,10 +62,10 @@ func (ap *AssetPack) AddBitmap(name string, path string) error {
 		return err
 	}
 
-	ass.name = name
-	ass.data = bmp
+	a.name = name
+	a.data = bmp
 
-	ap.assets = append(ap.assets, ass)
+	ap.assets = append(ap.assets, a)
 
 	return err
 }
@@ -73,8 +75,7 @@ func (ap *AssetPack) AddSample(name string, path string) error {
 
 	var err error
 	var s *Sample
-	// TODO: Better name for this, please
-	var ass asset
+	var a asset
 
 	s, err = loadSample(path)
 	if err != nil {
@@ -82,10 +83,31 @@ func (ap *AssetPack) AddSample(name string, path string) error {
 		return err
 	}
 
-	ass.name = name
-	ass.data = s
+	a.name = name
+	a.data = s
 
-	ap.assets = append(ap.assets, ass)
+	ap.assets = append(ap.assets, a)
+
+	return err
+}
+
+// AddMusic : Loads and adds a sample to the buffer
+func (ap *AssetPack) AddMusic(name string, path string) error {
+
+	var err error
+	var m *Music
+	var a asset
+
+	m, err = loadMusic(path)
+	if err != nil {
+
+		return err
+	}
+
+	a.name = name
+	a.data = m
+
+	ap.assets = append(ap.assets, a)
 
 	return err
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<assets bitmap_path="assets/bitmaps/" sample_path="assets/audio/">
+<assets bitmap_path="assets/bitmaps/" sample_path="assets/audio/" music_path="assets/audio/">
 
     <bitmap src="font.png" name="font" />
     <bitmap src="tileset.png" name="tileset" />
@@ -26,5 +26,7 @@
     <sample src="destroy.wav" name="destroy" />
     <sample src="failure.wav" name="failure" />
     <sample src="restart.wav" name="restart" />
+
+    <music src="victory.wav" name="victory" />
 
 </assets>

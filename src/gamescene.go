@@ -267,6 +267,9 @@ func (game *gameScene) Refresh(ev *core.Event) {
 			game.clearTimer = gameClearTime
 			game.clearMenu.activate(0)
 
+			ev.Audio.StopMusic()
+			ev.Audio.PlayMusic(ev.Assets.GetAsset("victory").(*core.Music), 50, 1)
+
 			state = 1
 			if game.objects.moveCount <= game.gameStage.bonusMoveLimit {
 
