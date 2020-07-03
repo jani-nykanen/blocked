@@ -244,6 +244,9 @@ func (win *GameWindow) toggleFullscreen() {
 	} else {
 
 		win.window.SetFullscreen(0)
+
+		// Needed for Windows
+		win.baseCanvas.resize(win.window.GetSize())
 	}
 	win.fullscreen = !win.fullscreen
 }

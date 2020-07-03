@@ -1,7 +1,7 @@
  
 .PHONY: core
 core:
-	(cd src/core; go install -ldflags -H=windowsgui)
+	(cd src/core; go install)
 
 .PHONY: game
 game:
