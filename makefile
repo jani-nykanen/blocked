@@ -1,15 +1,15 @@
  
 .PHONY: core
 core:
-	(cd src/core; go install)
+	(cd src/core; go install -ldflags -H=windowsgui)
 
 .PHONY: game
 game:
 	(cd src; go build -o ../$@)
 
-.PHONE: game.exe
+.PHONY: game.exe
 game.exe:
-	(cd src; go build -o ../$@)
+	(cd src; go build -o ../$@ -ldflags -H=windowsgui)
 
 all: linux
 linux: core game
