@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 
-    <param key="window_caption" value="Game" />
+    <param key="window_caption" value="Blocked" />
 
     <param key="window_width" value="768" />
     <param key="window_height" value="576" />
@@ -11,7 +11,7 @@
     <param key="canvas_width" value="256" />
     <param key="canvas_height" value="192" />
 
-    <param key="sfx_volume" value="80" />
+    <param key="sfx_volume" value="70" />
     <param key="music_volume" value="70" />
 
     <param key="asset_path" value="assets/assets.xml" />

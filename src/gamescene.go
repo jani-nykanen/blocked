@@ -265,7 +265,7 @@ func (game *gameScene) Refresh(ev *core.Event) {
 		if game.cleared && !game.clearMenu.active {
 
 			game.clearTimer = gameClearTime
-			game.clearMenu.activate(0)
+			game.clearMenu.activate(1)
 
 			ev.Audio.StopMusic()
 			ev.Audio.PlayMusic(ev.Assets.GetAsset("victory").(*core.Music), 50, 1)
